@@ -3,7 +3,7 @@
  * Required:   Optional (for automatic syncing every 15 minutes)
  * Env vars:   APP_URL, SYNC_SECRET
  * Get it:     APP_URL = your app's Railway URL. SYNC_SECRET = the same
- *             value you set on the app (openssl rand -hex 32).
+ *             value you set on the app (npm run secret).
  * Plan:       Railway cron services are included in usage pricing.
  * If missing: The cron run fails with a message; nothing else breaks.
  * Docs:       docs/CONNECTIONS.md#railway-cron

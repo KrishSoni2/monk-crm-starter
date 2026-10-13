@@ -2,7 +2,7 @@
  * CONNECTION: Sync endpoint (called by the Railway cron)
  * Required:   Optional. Needed for automatic syncing every 15 minutes.
  * Env vars:   SYNC_SECRET (plus CALENDLY_TOKEN for there to be anything to sync)
- * Get it:     Make one yourself: openssl rand -hex 32
+ * Get it:     Make one yourself: npm run secret
  * Plan:       Free
  * If missing: This endpoint returns 503. "Sync now" still works.
  * Docs:       docs/CONNECTIONS.md#sync-secret

@@ -17,6 +17,8 @@ import { segmentItemClass } from "@/modules/sales/components/segment";
 import { CanceledTag } from "@/modules/sales/components/status-badge";
 import { BOARD_COLUMNS, type BookingPatch, type BookingRow, type RepRow } from "@/modules/sales/types";
 
+// AI-GUIDE: The booking side panel. Each block is a <Section title="...">. To add one,
+// copy a Section in PanelBody and save changes through onPatch (see server/actions.ts).
 const UNASSIGNED = "unassigned";
 
 

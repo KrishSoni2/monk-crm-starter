@@ -1,5 +1,5 @@
 import { Notice } from "@/components/notice";
-import { Sidebar } from "@/components/sidebar";
+import { MobileNav, Sidebar } from "@/components/sidebar";
 import { getAuthMode } from "@/lib/auth";
 import { env, isDemoMode } from "@/lib/env";
 
@@ -12,14 +12,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen">
       <Sidebar demoMode={isDemoMode()} canSignOut={authMode === "protected"} />
-      <div className="ml-sidebar min-w-0">
+      <div className="min-w-0 md:ml-sidebar">
+        <MobileNav demoMode={isDemoMode()} canSignOut={authMode === "protected"} />
         {authMode === "open" && (
           <Notice>
             No APP_PASSWORD is set, so anyone who can reach this app can use it. That&apos;s fine on your own
             computer. Set one before you deploy (see docs/CONNECTIONS.md#app-password).
           </Notice>
         )}
-        <main className="p-page">{hasDatabase ? children : <DatabaseMissing />}</main>
+        <main className="p-4 md:p-page">{hasDatabase ? children : <DatabaseMissing />}</main>
       </div>
     </div>
   );

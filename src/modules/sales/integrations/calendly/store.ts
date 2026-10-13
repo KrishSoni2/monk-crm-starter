@@ -7,6 +7,8 @@
  * If missing: Sync and webhooks fail with a clear error.
  * Docs:       docs/CONNECTIONS.md#railway-postgres
  * ============================================================ */
+// AI-GUIDE: The save rules for Calendly data. Change these carefully: they decide what
+// sync may overwrite. Any change here needs a test in tests/calendly-sync.db.test.ts.
 // Saves Calendly data into the database. Used by BOTH the polling sync and the webhook,
 // so every booking is saved the same way.
 //

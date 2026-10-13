@@ -1,3 +1,6 @@
+// AI-GUIDE: Test helpers. Use createMockCalendly(now) to build fake events and invitees
+// and pass mock.fetchImpl to runSync(). Copy this pattern to test a new integration
+// without touching the real service.
 // A fake Calendly API for tests. Holds events and invitees in memory and answers the
 // same URLs the real API does (users/me, scheduled_events with paging, invitees).
 // Never talks to the network.

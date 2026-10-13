@@ -3,7 +3,7 @@
  * Required:   Optional. Only for paid Calendly plans.
  * Env vars:   CALENDLY_TOKEN, CALENDLY_WEBHOOK_SIGNING_KEY, APP_URL
  * Get it:     Token: Calendly > Integrations & apps > API & webhooks.
- *             Signing key: openssl rand -hex 32. APP_URL: your Railway URL.
+ *             Signing key: npm run secret. APP_URL: your Railway URL.
  * Plan:       Calendly Standard plan or higher (webhooks aren't on Free).
  * If missing: The script stops and says which variable to set.
  * Docs:       docs/CONNECTIONS.md#calendly-webhooks
@@ -78,7 +78,7 @@ if (command === "list") {
   console.log("");
 } else if (command === "create") {
   if (!appUrl?.startsWith("https://")) stop("Set APP_URL to your app's public https address, e.g. https://your-app.up.railway.app");
-  if (!signingKey) stop("Set CALENDLY_WEBHOOK_SIGNING_KEY first (make one with: openssl rand -hex 32), in .env AND in Railway variables.");
+  if (!signingKey) stop("Set CALENDLY_WEBHOOK_SIGNING_KEY first (make one with: npm run secret), in .env AND in Railway variables.");
   const url = `${appUrl}/api/webhooks/calendly`;
   const sub = await withScope(async (scope) =>
     (

@@ -8,6 +8,7 @@
 # Plan:       Railway Hobby plan (usage-based)
 # If missing: Nothing to deploy to. The app still runs locally.
 # Docs:       docs/CONNECTIONS.md#railway-postgres
+#             The 15-minute cron is a separate service: see railway.cron.toml
 # ============================================================
 # Railway builds from a clean machine every time:
 #   install  -> npm ci (runs `prisma generate` via postinstall)

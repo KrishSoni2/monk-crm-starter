@@ -11,6 +11,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getAuthMode, isValidSessionToken, SESSION_COOKIE } from "@/lib/auth";
 
+// AI-GUIDE: Every page and API route needs the password except these. Only add a path
+// here if it protects itself (a secret or a signature), like a new webhook.
 // Paths that never need the password. Each one protects itself:
 // /api/sync checks SYNC_SECRET, /api/webhooks checks the Calendly signature.
 const PUBLIC_PATHS = ["/login", "/setup", "/api/health", "/api/sync", "/api/webhooks", "/api/auth"];

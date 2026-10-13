@@ -1,3 +1,8 @@
+// AI-GUIDE: Calendly API -> booking fields. To store a new Calendly field:
+//   1. Add it to the type in types.ts (check Calendly's API docs for its name).
+//   2. Add a column in prisma/schema.prisma and run `npm run db:migrate -- --name ...`.
+//   3. Set it in `fields` below. Polling and webhooks both pick it up automatically.
+//   4. Add an expectation in tests/calendly-normalize.test.ts.
 // Turns one Calendly event + one invitee into the Calendly-owned fields of a Booking.
 // Pure function: no database, no network. Polling and webhooks both go through this,
 // so a booking looks the same however it arrived.

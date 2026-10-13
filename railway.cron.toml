@@ -1,0 +1,23 @@
+# ============================================================
+# CONNECTION: Railway cron (syncs Calendly every 15 minutes)
+# Required:   Optional (without it, use "Sync now" or webhooks)
+# Env vars:   APP_URL, SYNC_SECRET (same value as on the app service)
+# Get it:     Railway > + New > GitHub Repo (this repo again) > the new
+#             service's Settings > Config-as-code > Railway Config File:
+#             /railway.cron.toml
+# Plan:       Included in Railway usage pricing (runs a few seconds each time)
+# If missing: No automatic sync. Nothing else is affected.
+# Docs:       docs/CONNECTIONS.md#railway-cron
+# ============================================================
+# This is a SECOND Railway service built from the same repo. It wakes up every 15
+# minutes, calls POST <APP_URL>/api/sync with the SYNC_SECRET, prints the result and
+# exits. The main app's settings live in railway.toml.
+
+[build]
+# Nothing to compile: the cron only runs scripts/cron-sync.mjs with plain Node.
+buildCommand = "echo 'Cron service: no build step needed'"
+
+[deploy]
+startCommand = "npm run cron:sync"
+cronSchedule = "*/15 * * * *"
+restartPolicyType = "NEVER"

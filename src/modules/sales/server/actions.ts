@@ -1,5 +1,11 @@
 "use server";
 
+// AI-GUIDE: Server actions (writes). To let the team edit a new booking field:
+//   1. Add the column in prisma/schema.prisma (and a migration).
+//   2. Add it to BookingRow / BookingPatch in types.ts and to listBookings() in queries.ts.
+//   3. Validate it in updateBooking() below.
+//   4. Add the control in components/booking-panel.tsx and call onPatch({ field }).
+// The optimistic save and rollback come for free from use-bookings.ts.
 // Server actions (writes) for the Sales module. The UI updates first and calls these
 // in the background; if one returns ok: false, the UI puts the old value back.
 //

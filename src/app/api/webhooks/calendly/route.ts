@@ -2,7 +2,7 @@
  * CONNECTION: Calendly webhooks (instant updates)
  * Required:   Optional. Off unless CALENDLY_WEBHOOK_SIGNING_KEY is set.
  * Env vars:   CALENDLY_WEBHOOK_SIGNING_KEY
- * Get it:     openssl rand -hex 32, then `npm run calendly:webhook -- create`
+ * Get it:     npm run secret, then `npm run calendly:webhook -- create`
  * Plan:       Paid Calendly plans only.
  * If missing: This endpoint returns 404. Polling still keeps data fresh.
  * Docs:       docs/CONNECTIONS.md#calendly-webhooks

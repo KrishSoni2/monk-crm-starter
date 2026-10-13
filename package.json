@@ -16,7 +16,9 @@
     "calendly:webhook": "node scripts/calendly-webhook.mjs",
     "cron:sync": "node scripts/cron-sync.mjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "secret": "node -e \"console.log(require('node:crypto').randomBytes(32).toString('hex'))\"",
+    "db:deploy": "prisma migrate deploy"
   },
   "dependencies": {
     "@dnd-kit/core": "6.3.1",

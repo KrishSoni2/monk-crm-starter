@@ -1,3 +1,7 @@
+// AI-GUIDE: Demo data. Change the lists below to make the demo look like your business.
+// Keep everything fictional (example.com emails, 555-01xx numbers) and keep the demo
+// flags (source: "DEMO", isDemo: true): the first real sync deletes rows by those flags.
+// To see your changes, empty the database (or delete all bookings) and reload.
 // Demo data for the Sales module. Used when CALENDLY_TOKEN is not set, so a fresh
 // clone works with nothing but a database.
 //

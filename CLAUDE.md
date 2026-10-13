@@ -5,7 +5,7 @@ Start every task by reading this file, then search the code for `AI-GUIDE:` comm
 
 ## What this is
 
-monk-crm-starter: a small CRM shell for one business. It ships with one module, the
+CRM Starter (monk-crm-starter): a small CRM shell for one business. It ships with one module, the
 **Sales Dashboard** (Calendly bookings), and is built so new modules are added the
 same way. The people running it are mostly not developers, so keep things simple,
 readable and explained.
@@ -39,7 +39,9 @@ In shadcn, `accent` means the grey hover background, not the brand color.
 | `npm run dev` | Start locally at http://localhost:3000 |
 | `npm run build` | Production build. **Must pass at the end of every change** |
 | `npm test` | Runs the tests. **Run after every change**, together with `npm run build` |
-| `npm run db:migrate` | Create and apply a migration after editing `prisma/schema.prisma` (local only) |
+| `npm run db:deploy` | Apply existing migrations (first local run; Railway does this on start) |
+| `npm run db:migrate -- --name what_changed` | Create and apply a migration after editing `prisma/schema.prisma` (local only) |
+| `npm run secret` | Print a random 64-character secret (for SYNC_SECRET, webhook key) |
 | `npm run db:studio` | Browse the database |
 | `npm run calendly:webhook -- create` | Register the optional Calendly webhook (`-- list`, `-- delete <uri>`) |
 | `npm run cron:sync` | What the Railway cron runs: asks the app to sync (needs APP_URL, SYNC_SECRET) |
@@ -109,7 +111,9 @@ Full detail in `docs/DESIGN.md`. The short version:
 - Inter, 16px body, medium-weight (500) headings.
 - 4px grid. 32px page padding, 24px card padding. Radius: 8px cards, 6px buttons,
   4px inputs.
-- Fixed 240px left sidebar, generated from the modules config.
+- Fixed 240px left sidebar, generated from the modules config. Below the `md`
+  breakpoint it folds into a top bar with a menu button that opens it as a drawer.
+- Rebrand by changing `--brand` in `src/theme/theme.css`, never `--accent`.
 - Tables: 48px rows, sticky first column, scroll sideways instead of squeezing.
 - Motion is gentle and short: side panel slides in, board drag is smooth. Respect
   `prefers-reduced-motion`.
@@ -133,7 +137,8 @@ src/modules/<module-id>/
     calendly/          #   client.ts (API), normalize.ts (API -> row), store.ts (save), sync.ts, webhook.ts
   demo/seed.ts         # Fictional demo data for this module
 
-src/app/(app)/<module-id>/page.tsx   # Thin page: loads data, renders the module's components
+src/app/(app)/<module-id>/page.tsx     # Thin page: loads data, renders the module's components
+src/app/(app)/<module-id>/loading.tsx  # Skeleton shown while the page loads
 ```
 
 Shared code lives outside modules:
@@ -146,6 +151,10 @@ src/components/        # App shell: sidebar, page header, notices, theme toggle
 src/lib/               # db, auth, env helpers
 src/proxy.ts           # Password gate (Next.js request proxy)
 prisma/schema.prisma   # Database schema (AI-GUIDE)
+tests/                 # vitest tests; helpers/mock-calendly.ts fakes the Calendly API
+scripts/               # Plain Node scripts: webhook registration, cron sync
+railway.toml           # App service: build, migrate-on-start, healthcheck
+railway.cron.toml      # Cron service: runs `npm run cron:sync` every 15 minutes
 ```
 
 Modules must not import from each other's folders. If two modules need the same
@@ -157,7 +166,6 @@ To add a module, follow `docs/ADDING-A-MODULE.md`.
 
 - `AGENTS.md`: points other AI tools (Codex reads AGENTS.md) to this file. Its marked
   block is managed by `next dev`; only edit outside the markers.
-
 - `BUILD.md`: the Sales module's build doc (the template for new modules)
 - `docs/CONNECTIONS.md`: every external service and env var
 - `docs/DESIGN.md`: design system
@@ -170,10 +178,7 @@ To add a module, follow `docs/ADDING-A-MODULE.md`.
 - [x] Stage 1: Foundation (Next.js, theme, Prisma schema, seed, sidebar shell, password gate, health route, Railway config)
 - [x] Stage 2: Bookings (table view, side panel, reps settings, call attempts, on demo data)
 - [x] Stage 3: Board and stats (board with drag, stats row, filters, call-attempts-by-hour chart)
-- [x] Stage 4: Calendly
-- [x] Review fixes: No-show reset on reschedule, vitest suite (`npm test`) (polling sync, Sync now, /api/sync, optional webhooks, demo fallback, connection banners)
-- [ ] Stage 5: Docs and polish (README, docs, AI-GUIDE pass, empty and loading states, dark mode)
-  - Collapsible sidebar for small screens
-  - Keep the README notes already written (NODE_ENV password lock, npm audit warnings)
-  - Docs say `--brand` for rebranding, never `--accent` (shadcn's accent is the hover grey)
+- [x] Stage 4: Calendly (polling sync, Sync now, /api/sync, optional webhooks, demo fallback, connection banners)
+- [x] Review fixes: No-show reset on reschedule, vitest suite (`npm test`)
+- [x] Stage 5: Docs and polish (README, docs, AI-GUIDE pass, empty, loading and error states, dark mode, collapsible sidebar on small screens)
 - [ ] Stage 6: Final check (scan repo and history for copied code, real names, URLs, secrets)
