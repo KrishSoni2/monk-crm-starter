@@ -31,7 +31,7 @@ const WINDOW_DAYS = 60;
 const DAY = 24 * 60 * 60 * 1000;
 // A run still marked "running" after this long died part-way (e.g. a redeploy), so it
 // no longer blocks new runs.
-const STALE_RUN_MS = 10 * 60 * 1000;
+const STUCK_RUN_AFTER_MS = 10 * 60 * 1000;
 // How many events' invitees to fetch from Calendly at once. Kept low to stay well inside rate limits.
 const CONCURRENCY = 4;
 
@@ -55,7 +55,7 @@ export async function runSync({ source, db: givenDb, fetchImpl, now = new Date()
   const db = givenDb ?? getDb();
 
   const running = await db.syncRun.findFirst({
-    where: { status: "running", source: { not: "webhook" }, startedAt: { gt: new Date(now.getTime() - STALE_RUN_MS) } },
+    where: { status: "running", source: { not: "webhook" }, startedAt: { gt: new Date(now.getTime() - STUCK_RUN_AFTER_MS) } },
   });
   if (running) return { status: "skipped", reason: "A sync is already running. Try again in a minute." };
 

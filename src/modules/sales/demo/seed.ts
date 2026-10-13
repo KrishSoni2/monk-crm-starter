@@ -15,15 +15,14 @@ import { zonedTimeToUtc } from "@/lib/time";
 
 const DAY = 24 * 60 * 60 * 1000;
 
-// Small seeded random generator so the demo looks the same every time it's created.
+// Small seeded random generator (Park-Miller "minimal standard"), so the demo looks the
+// same every time it's created. Returns numbers from 0 up to (not including) 1.
 function random(seed: number) {
-  let a = seed;
+  const MOD = 2_147_483_647;
+  let state = (seed % MOD) || 1;
   return () => {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    state = (state * 48_271) % MOD;
+    return (state - 1) / (MOD - 1);
   };
 }
 

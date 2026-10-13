@@ -181,4 +181,4 @@ To add a module, follow `docs/ADDING-A-MODULE.md`.
 - [x] Stage 4: Calendly (polling sync, Sync now, /api/sync, optional webhooks, demo fallback, connection banners)
 - [x] Review fixes: No-show reset on reschedule, vitest suite (`npm test`)
 - [x] Stage 5: Docs and polish (README, docs, AI-GUIDE pass, empty, loading and error states, dark mode, collapsible sidebar on small screens)
-- [ ] Stage 6: Final check (scan repo and history for copied code, real names, URLs, secrets)
+- [x] Stage 6: Final check (scan repo and history for copied code, real names, URLs, secrets)

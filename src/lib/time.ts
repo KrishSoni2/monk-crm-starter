@@ -1,20 +1,25 @@
 // Time zone helpers built on the browser/Node Intl API (no date library needed).
 
 // How far a time zone is ahead of UTC at a given moment, in milliseconds.
+// Reads the wall-clock parts in that zone, rebuilds them as if they were UTC, and
+// compares with the real moment (rounded to the second, since we drop milliseconds).
 export function timeZoneOffsetMs(date: Date, timeZone: string): number {
-  const parts = new Intl.DateTimeFormat("en-US", {
+  const wall: Record<string, number> = {};
+  for (const { type, value } of new Intl.DateTimeFormat("en-US", {
     timeZone,
     hourCycle: "h23",
     year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-  }).formatToParts(date);
-  const get = (type: string) => Number(parts.find((p) => p.type === type)?.value);
-  const asUtc = Date.UTC(get("year"), get("month") - 1, get("day"), get("hour"), get("minute"), get("second"));
-  return asUtc - Math.floor(date.getTime() / 1000) * 1000;
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+  }).formatToParts(date)) {
+    if (type !== "literal") wall[type] = Number(value);
+  }
+  const wallAsUtc = Date.UTC(wall.year, wall.month - 1, wall.day, wall.hour, wall.minute, wall.second);
+  const actual = date.getTime() - date.getUTCMilliseconds();
+  return wallAsUtc - actual;
 }
 
 // The UTC moment for a wall-clock time in a time zone, e.g. 9:30 in Europe/London.
