@@ -1,0 +1,129 @@
+// AI-GUIDE: This is the database schema. Every table the app uses is defined here.
+// To add a field or a table:
+//   1. Edit this file (add, don't rename or delete fields that already hold data).
+//   2. Run `npm run db:migrate -- --name what_you_changed` locally. It creates a file
+//      in prisma/migrations/. Commit that file: Railway applies it on the next deploy.
+//   3. Put a new module's tables in their own section below with a comment header,
+//      and prefix their names with the module (e.g. InvoiceItem for an "invoices" module).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ------------------------------------------------------------
+// Sales module (Calendly bookings). See BUILD.md section 2.
+// ------------------------------------------------------------
+
+// AI-GUIDE: Booking statuses double as the board columns (src/modules/sales/types.ts
+// controls their order and labels). Adding a status here needs a migration AND an
+// entry in BOARD_COLUMNS.
+enum BookingStatus {
+  BOOKED
+  SHOWED
+  NO_SHOW
+  NOT_QUALIFIED
+  CLOSED
+  LOST
+}
+
+enum BookingSource {
+  CALENDLY
+  DEMO
+}
+
+model Rep {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  color     String
+  // True for seeded demo reps. Only rows with isDemo = true are ever auto-deleted.
+  isDemo    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings     Booking[]
+  callAttempts CallAttempt[]
+}
+
+model Booking {
+  id                  String   @id @default(cuid())
+  // Calendly invitee URI. The dedupe key: sync and webhooks both upsert on it.
+  inviteeUri          String   @unique
+  // Invitee URIs this booking was rescheduled from. Later syncs ignore these.
+  previousInviteeUris String[] @default([])
+  eventUri            String
+
+  // Calendly-owned fields: sync overwrites these.
+  eventTypeName   String?
+  inviteeName     String
+  inviteeEmail    String
+  inviteePhone    String?
+  inviteeTimeZone String?
+  hostEmail       String?
+  startTime       DateTime
+  endTime         DateTime
+  locationType    String?
+  joinUrl         String?
+  rescheduleUrl   String?
+  cancelUrl       String?
+  // Booking form answers: [{ question, answer }]
+  questions       Json     @default("[]")
+  canceledAt      DateTime?
+  cancelReason    String?
+  canceledBy      String?
+  calendlyRaw     Json?
+
+  // Team-owned fields: sync never touches these.
+  status          BookingStatus @default(BOOKED)
+  qualified       Boolean?
+  qualifiedReason String?
+  notes           String?
+  repId           String?
+  rep             Rep?          @relation(fields: [repId], references: [id], onDelete: SetNull)
+
+  // DEMO rows are the only bookings that are ever auto-deleted.
+  source    BookingSource @default(CALENDLY)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  callAttempts CallAttempt[]
+
+  @@index([startTime])
+  @@index([repId])
+  @@index([status])
+}
+
+model CallAttempt {
+  id          String   @id @default(cuid())
+  bookingId   String
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  attemptedAt DateTime @default(now())
+  answered    Boolean
+  note        String?
+  repId       String?
+  rep         Rep?     @relation(fields: [repId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+
+  @@index([bookingId])
+  @@index([attemptedAt])
+}
+
+model SyncRun {
+  id         String    @id @default(cuid())
+  source     String // manual | cron | webhook
+  status     String // running | ok | error
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+  created    Int       @default(0)
+  updated    Int       @default(0)
+  skipped    Int       @default(0)
+  // Short message only. Never store tokens or secrets here.
+  error      String?
+
+  @@index([startedAt])
+}

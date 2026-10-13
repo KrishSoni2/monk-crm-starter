@@ -136,6 +136,9 @@ To add a module, follow `docs/ADDING-A-MODULE.md`.
 
 ## Key docs
 
+- `AGENTS.md`: points other AI tools (Codex reads AGENTS.md) to this file. Its marked
+  block is managed by `next dev`; only edit outside the markers.
+
 - `BUILD.md`: the Sales module's build doc (the template for new modules)
 - `docs/CONNECTIONS.md`: every external service and env var
 - `docs/DESIGN.md`: design system
@@ -145,9 +148,11 @@ To add a module, follow `docs/ADDING-A-MODULE.md`.
 ## Progress
 
 - [x] Stage 0: Study reference, write BUILD.md and CLAUDE.md
-- [ ] Stage 1: Foundation (Next.js, theme, Prisma schema, seed, sidebar shell, password gate, health route, Railway config)
+- [x] Stage 1: Foundation (Next.js, theme, Prisma schema, seed, sidebar shell, password gate, health route, Railway config)
 - [ ] Stage 2: Bookings (table view, side panel, reps settings, call attempts, on demo data)
 - [ ] Stage 3: Board and stats (board with drag, stats row, filters, call-attempts-by-hour chart)
 - [ ] Stage 4: Calendly (polling sync, Sync now, /api/sync, optional webhooks, demo fallback, connection banners)
 - [ ] Stage 5: Docs and polish (README, docs, AI-GUIDE pass, empty and loading states, dark mode)
+  - Collapsible sidebar for small screens
+  - Keep the README notes already written (NODE_ENV password lock, npm audit warnings)
 - [ ] Stage 6: Final check (scan repo and history for copied code, real names, URLs, secrets)

@@ -1,0 +1,26 @@
+# ============================================================
+# CONNECTION: Railway (hosting + deploy)
+# Required:   Yes, to deploy (not needed to run locally)
+# Env vars:   DATABASE_URL = ${{Postgres.DATABASE_URL}}  (private network)
+#             APP_PASSWORD, plus the optional ones in .env.example
+# Get it:     railway.com > New project > Deploy from GitHub repo,
+#             then + New > Database > PostgreSQL
+# Plan:       Railway Hobby plan (usage-based)
+# If missing: Nothing to deploy to. The app still runs locally.
+# Docs:       docs/CONNECTIONS.md#railway-postgres
+# ============================================================
+# Railway builds from a clean machine every time:
+#   install  -> npm ci (runs `prisma generate` via postinstall)
+#   build    -> npm run build (no database access needed)
+#   start    -> prisma migrate deploy, then next start on $PORT
+# The healthcheck hits /api/health, which never touches the database.
+
+[build]
+buildCommand = "npm run build"
+
+[deploy]
+startCommand = "npm run start"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5

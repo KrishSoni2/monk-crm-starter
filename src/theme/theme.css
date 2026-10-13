@@ -1,0 +1,99 @@
+/* AI-GUIDE: This is the theme file: every color, radius and size the app uses.
+ * - To rebrand, change --accent below. That one line recolors the main buttons,
+ *   focus rings and active sidebar item in light and dark mode.
+ * - Components use these through Tailwind classes (bg-surface, text-muted, border-line,
+ *   bg-accent, rounded-card...). Never hard-code a hex color in a component; add a
+ *   token here instead, in BOTH the light and the dark block.
+ * - Design rules live in docs/DESIGN.md. */
+
+:root {
+  /* The one accent color. Used sparingly, for the main action only. */
+  --accent: #FF2929;
+  --accent-contrast: #FFFFFF;
+
+  /* Light mode */
+  --bg: #FFFFFF;
+  --surface: #FAFAFA;
+  --surface-hover: #F2F2F2;
+  --line: #E5E5E5;
+  --text: #1A1A1A;
+  --text-muted: #666666;
+  --text-subtle: #999999;
+
+  /* Status colors: soft, quiet tints so the accent stays the loudest thing. */
+  --positive: #1F8A4C;
+  --negative: #C2410C;
+  --warning-bg: #FFF7E6;
+  --warning-text: #8A5A00;
+
+  /* Overlay behind the side panel */
+  --scrim: rgba(0, 0, 0, 0.16);
+
+  /* Rep colors: the small dot next to a rep's name. Keys match REP_COLORS in
+     src/modules/sales/types.ts. */
+  --rep-slate: #64748B;
+  --rep-blue: #3B82F6;
+  --rep-teal: #14B8A6;
+  --rep-green: #22C55E;
+  --rep-amber: #F59E0B;
+  --rep-orange: #F97316;
+  --rep-pink: #EC4899;
+  --rep-violet: #8B5CF6;
+}
+
+/* Dark mode: applied when <html class="dark"> (set by the theme toggle or system setting). */
+.dark {
+  --bg: #262624;
+  --surface: #2F2F2D;
+  --surface-hover: #363634;
+  --line: #3D3D3B;
+  --text: #F5F5F5;
+  --text-muted: #A3A3A3;
+  --text-subtle: #737373;
+
+  --positive: #4ADE80;
+  --negative: #FB923C;
+  --warning-bg: #3A3222;
+  --warning-text: #F5C26B;
+
+  --scrim: rgba(0, 0, 0, 0.4);
+
+  --rep-slate: #94A3B8;
+  --rep-blue: #60A5FA;
+  --rep-teal: #2DD4BF;
+  --rep-green: #4ADE80;
+  --rep-amber: #FBBF24;
+  --rep-orange: #FB923C;
+  --rep-pink: #F472B6;
+  --rep-violet: #A78BFA;
+}
+
+@theme inline {
+  --color-accent: var(--accent);
+  --color-accent-contrast: var(--accent-contrast);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-line: var(--line);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-subtle: var(--text-subtle);
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
+  --color-warning-bg: var(--warning-bg);
+  --color-warning-text: var(--warning-text);
+  --color-scrim: var(--scrim);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  /* Radius: 8px cards, 6px buttons, 4px inputs */
+  --radius-card: 8px;
+  --radius-button: 6px;
+  --radius-input: 4px;
+
+  /* Layout */
+  --spacing-sidebar: 240px;
+  --spacing-page: 32px;
+  --spacing-card: 24px;
+  --spacing-row: 48px;
+}
