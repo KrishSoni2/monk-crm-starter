@@ -14,7 +14,9 @@
     "db:studio": "prisma studio",
     "typecheck": "tsc --noEmit",
     "calendly:webhook": "node scripts/calendly-webhook.mjs",
-    "cron:sync": "node scripts/cron-sync.mjs"
+    "cron:sync": "node scripts/cron-sync.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@dnd-kit/core": "6.3.1",
@@ -42,6 +44,7 @@
     "shadcn": "4.21.4",
     "tailwindcss": "4.3.3",
     "tw-animate-css": "1.4.0",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
   }
 }

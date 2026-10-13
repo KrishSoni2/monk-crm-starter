@@ -100,6 +100,10 @@ never has to call Calendly to render.
   at the old one (`old_invitee`). We move the existing booking to the new invitee URI
   and push the old URI into `previousInviteeUris`, so the rep, notes and call attempts
   carry over. The old invitee is then ignored on every later sync.
+- **A No-show who reschedules goes back to Booked.** This is the one time sync changes
+  a team field: if the booking was in No-show, its status resets to Booked and a note
+  is added ("Rescheduled from Tue, Oct 6, 2026, 10:00 AM (America/New_York), was
+  No-show"). Every other status stays as it was.
 
 ---
 

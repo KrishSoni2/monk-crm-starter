@@ -38,6 +38,7 @@ In shadcn, `accent` means the grey hover background, not the brand color.
 | `npm install` | Install packages (also runs `prisma generate`) |
 | `npm run dev` | Start locally at http://localhost:3000 |
 | `npm run build` | Production build. **Must pass at the end of every change** |
+| `npm test` | Runs the tests. **Run after every change**, together with `npm run build` |
 | `npm run db:migrate` | Create and apply a migration after editing `prisma/schema.prisma` (local only) |
 | `npm run db:studio` | Browse the database |
 | `npm run calendly:webhook -- create` | Register the optional Calendly webhook (`-- list`, `-- delete <uri>`) |
@@ -45,6 +46,14 @@ In shadcn, `accent` means the grey hover background, not the brand color.
 
 Railway runs `prisma migrate deploy` at start, never at build. Never run `migrate dev`
 against production.
+
+## After every change
+
+1. `npm test`. All tests must pass. Database tests run only when `TEST_DATABASE_URL`
+   is set (a separate, empty database; the tests erase it). Never point it at real data.
+2. `npm run build`. Must pass.
+3. If you changed behaviour, add or update a test in `tests/`. Pure logic gets a plain
+   test; anything that saves to the database goes in a `*.db.test.ts` file.
 
 ## Rules
 
@@ -161,7 +170,8 @@ To add a module, follow `docs/ADDING-A-MODULE.md`.
 - [x] Stage 1: Foundation (Next.js, theme, Prisma schema, seed, sidebar shell, password gate, health route, Railway config)
 - [x] Stage 2: Bookings (table view, side panel, reps settings, call attempts, on demo data)
 - [x] Stage 3: Board and stats (board with drag, stats row, filters, call-attempts-by-hour chart)
-- [x] Stage 4: Calendly (polling sync, Sync now, /api/sync, optional webhooks, demo fallback, connection banners)
+- [x] Stage 4: Calendly
+- [x] Review fixes: No-show reset on reschedule, vitest suite (`npm test`) (polling sync, Sync now, /api/sync, optional webhooks, demo fallback, connection banners)
 - [ ] Stage 5: Docs and polish (README, docs, AI-GUIDE pass, empty and loading states, dark mode)
   - Collapsible sidebar for small screens
   - Keep the README notes already written (NODE_ENV password lock, npm audit warnings)

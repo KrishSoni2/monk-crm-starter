@@ -18,8 +18,26 @@
 // - Reschedule: the new invitee points at the old one. The existing row moves to the
 //   new invitee URI (keeping rep, notes and calls) and remembers the old URI, which is
 //   then ignored forever.
+// - The one exception to "never touch team fields": a booking in No-show that gets
+//   rescheduled goes back to Booked, with a note saying so. Any other status stays.
 import type { PrismaClient } from "@/generated/prisma/client";
 import type { NormalizedInvitee } from "@/modules/sales/integrations/calendly/normalize";
+
+// e.g. "Tue, Oct 6, 2026, 10:00 AM (America/New_York)". Uses the invitee's time zone
+// when we know it, so the note reads the same for everyone.
+function formatOldDate(date: Date, timeZone: string | null) {
+  const zone = timeZone ?? "UTC";
+  const text = new Intl.DateTimeFormat("en-US", {
+    timeZone: zone,
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(date);
+  return `${text} (${zone})`;
+}
 
 export type SaveOutcome = "created" | "updated" | "skipped";
 
@@ -49,9 +67,12 @@ export async function saveInvitee(
   if (!existing && oldInviteeUri) {
     const previous = await db.booking.findUnique({
       where: { inviteeUri: oldInviteeUri },
-      select: { id: true, repId: true },
+      select: { id: true, repId: true, status: true, notes: true, startTime: true, inviteeTimeZone: true },
     });
     if (previous) {
+      // They didn't show, then booked a new time: back to Booked, and say why in the notes.
+      const wasNoShow = previous.status === "NO_SHOW";
+      const note = `Rescheduled from ${formatOldDate(previous.startTime, previous.inviteeTimeZone)}, was No-show`;
       await db.booking.update({
         where: { id: previous.id },
         data: {
@@ -59,6 +80,7 @@ export async function saveInvitee(
           inviteeUri,
           previousInviteeUris: { push: oldInviteeUri },
           repId: previous.repId ?? autoRepId,
+          ...(wasNoShow ? { status: "BOOKED", notes: previous.notes ? `${previous.notes}\n\n${note}` : note } : {}),
         },
       });
       return "updated";

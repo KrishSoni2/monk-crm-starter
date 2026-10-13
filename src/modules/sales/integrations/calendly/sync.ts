@@ -48,9 +48,11 @@ async function inBatches<T>(items: T[], size: number, work: (item: T) => Promise
   for (let i = 0; i < items.length; i += size) await Promise.all(items.slice(i, i + size).map(work));
 }
 
-export async function runSync({ source, db = getDb(), fetchImpl, now = new Date() }: Options): Promise<SyncResult> {
+export async function runSync({ source, db: givenDb, fetchImpl, now = new Date() }: Options): Promise<SyncResult> {
   const token = env.calendlyToken();
   if (!token) return { status: "skipped", reason: "CALENDLY_TOKEN is not set, so the app is using demo data." };
+  // Only open the database once there's something to do.
+  const db = givenDb ?? getDb();
 
   const running = await db.syncRun.findFirst({
     where: { status: "running", source: { not: "webhook" }, startedAt: { gt: new Date(now.getTime() - STALE_RUN_MS) } },
