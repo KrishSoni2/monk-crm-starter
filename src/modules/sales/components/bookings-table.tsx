@@ -18,11 +18,15 @@ export function BookingsTable({
   repsById,
   selectedId,
   onSelect,
+  emptyTitle = "No bookings yet",
+  emptyHint = "New Calendly bookings show up here after the next sync.",
 }: {
   bookings: BookingRow[];
   repsById: Map<string, RepRow>;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  emptyTitle?: string;
+  emptyHint?: string;
 }) {
   const myZone = useViewerTimeZone();
 
@@ -30,10 +34,8 @@ export function BookingsTable({
     return (
       <div className="flex flex-col items-center rounded-card border px-card py-16 text-center">
         <CalendarX2 className="size-6 text-subtle" strokeWidth={1.5} />
-        <p className="mt-4 font-medium">No bookings yet</p>
-        <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-          New Calendly bookings show up here after the next sync.
-        </p>
+        <p className="mt-4 font-medium">{emptyTitle}</p>
+        <p className="mt-1 max-w-sm text-sm text-muted-foreground">{emptyHint}</p>
       </div>
     );
   }

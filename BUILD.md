@@ -106,26 +106,37 @@ never has to call Calendly to render.
 ## 3. Screens
 
 ### Sales (`/sales`)
-- **Header:** title, view switch (Table / Board), "Sync now" button (the one accent
+- **Header:** title, view switch (Table / Board), "Sync now" button (the one brand-color
   button on the page) with "Last synced 4 min ago" next to it. A "Demo data" badge
   shows when no Calendly token is set.
-- **Filters:** date range (This week, Last 30 days, All time) and rep (All reps or one).
-  Filters apply to the stats, the list and the chart.
+- **Filters:** date range (This week, Last 30 days, All time; default All time) and rep
+  (All reps, one rep, or Unassigned). Filters apply to the stats, the list, the board
+  and the chart. Ranges use the viewer's clock: This week = Monday 00:00 to next Monday;
+  Last 30 days = the 30 days up to now (so it holds only past meetings).
+  Bookings are filtered by meeting start time; the chart filters calls by call time.
 - **Stats row:** Total bookings, No-shows, Closed, Lost, Close rate.
   - Total bookings = non-canceled bookings in range.
   - Close rate = Closed / Showed, where Showed = Showed + Closed + Lost.
   - Each card says how it's calculated in a small subtitle, e.g. the Close rate card
     reads "Closed ÷ showed (showed + closed + lost)", so the number is never ambiguous.
 - **Table view:** 48px rows, sticky first column (invitee name), scrolls sideways
-  instead of squeezing. Columns: Invitee, Start time, Event type, Rep, Status,
-  Qualified, Call attempts, Time zone.
+  instead of squeezing. Columns: Invitee, Meeting (your time), Event type, Rep, Status,
+  Qualified, Calls, Their time. An **Upcoming / Past** switch sits above it: Upcoming
+  (default) = meetings that haven't ended, soonest first; Past = most recent first.
 - **Board view:** six columns: Booked, Showed, No-show, Not qualified, Closed, Lost.
-  Drag a card to change its status. Cards show name, time, rep dot, attempt count.
-- **Call attempts by hour:** bar chart, 24 hours, answered vs not answered, so the team
-  sees when people pick up. Hours are shown in the invitee's local time by default,
-  with a toggle for "My time".
+  Drag a card to change its status (keyboard: focus a card, Space, arrows, Space).
+  Cards show name, time, rep, attempt count. Shows every non-canceled booking in the
+  date range (past and upcoming); canceled bookings appear only in the table. Booked
+  is soonest first, the other columns most recent first. Table or Board is remembered
+  per browser.
+- **Call attempts by hour:** stacked bar chart, answered vs no answer, so the team
+  sees when people pick up. Shows 8am to 6pm, widened to include any hour that has
+  calls. Hours are in the invitee's local time by default, with a toggle for "My time".
+  Hover a bar for the count and answer rate.
 
 ### Booking side panel (slides in from the right, from either view)
+- Doesn't block the page: clicking another booking switches the panel to it. Escape
+  or the close button closes it.
 - Invitee name, email, phone, event type, start time.
 - Time zones side by side: "Their time 9:00 AM (Europe/London)" and
   "Your time 4:00 AM (America/New_York)".

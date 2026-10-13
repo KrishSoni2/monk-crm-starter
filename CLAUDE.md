@@ -16,7 +16,7 @@ readable and explained.
 - Tailwind CSS
 - Prisma + PostgreSQL (Railway Postgres)
 - shadcn/ui components (Radix base, in `src/components/ui`) + lucide-react icons
-- sonner (toasts, via shadcn), recharts (charts), @dnd-kit/core (drag and drop)
+- sonner (toasts, via shadcn), recharts + react-is (charts), @dnd-kit/core (drag and drop)
 - Deployed on Railway
 - Node 24 (pinned in `.node-version`; `engines` allows >=22)
 - Prisma pinned to **7.10.0** stable. Never upgrade to a release candidate.
@@ -115,10 +115,10 @@ src/modules/<module-id>/
   module.ts            # Registers the module: id, label, href, icon. Imported by src/modules/index.ts
   types.ts             # Shared types and constants for this module
   components/          # React components used only by this module
+  stats.ts             # Calculations, pure functions used by the page (if the module has numbers)
   server/
     queries.ts         # Database reads
     actions.ts         # Server actions (writes). Each checks the session
-    stats.ts           # Calculations (if the module has numbers)
   integrations/        # External services this module talks to (each file has a CONNECTION banner)
   demo/seed.ts         # Fictional demo data for this module
 
@@ -158,9 +158,10 @@ To add a module, follow `docs/ADDING-A-MODULE.md`.
 - [x] Stage 0: Study reference, write BUILD.md and CLAUDE.md
 - [x] Stage 1: Foundation (Next.js, theme, Prisma schema, seed, sidebar shell, password gate, health route, Railway config)
 - [x] Stage 2: Bookings (table view, side panel, reps settings, call attempts, on demo data)
-- [ ] Stage 3: Board and stats (board with drag, stats row, filters, call-attempts-by-hour chart)
+- [x] Stage 3: Board and stats (board with drag, stats row, filters, call-attempts-by-hour chart)
 - [ ] Stage 4: Calendly (polling sync, Sync now, /api/sync, optional webhooks, demo fallback, connection banners)
 - [ ] Stage 5: Docs and polish (README, docs, AI-GUIDE pass, empty and loading states, dark mode)
   - Collapsible sidebar for small screens
   - Keep the README notes already written (NODE_ENV password lock, npm audit warnings)
+  - Docs say `--brand` for rebranding, never `--accent` (shadcn's accent is the hover grey)
 - [ ] Stage 6: Final check (scan repo and history for copied code, real names, URLs, secrets)

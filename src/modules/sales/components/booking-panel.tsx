@@ -36,11 +36,15 @@ export function BookingPanel({
   onDeleteCall: (bookingId: string, callId: string) => void;
 }) {
   return (
-    <Sheet open={booking !== null} onOpenChange={(open) => !open && onClose()}>
+    // Non-modal: the table and board stay usable behind the panel. Clicking another
+    // booking switches the panel to it; Escape or the close button closes it.
+    <Sheet open={booking !== null} onOpenChange={(open) => !open && onClose()} modal={false}>
       <SheetContent
         className="w-full gap-0 overflow-y-auto sm:max-w-[480px]"
         // Don't jump focus (and a focus ring) onto the first dropdown when the panel opens.
         onOpenAutoFocus={(e) => e.preventDefault()}
+        // Clicks outside (e.g. on another row) shouldn't close the panel.
+        onInteractOutside={(e) => e.preventDefault()}
       >
         {booking && (
           <PanelBody
