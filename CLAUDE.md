@@ -1,0 +1,153 @@
+# CLAUDE.md
+
+Instructions for Claude Code, Codex and any AI assistant working in this repo.
+Start every task by reading this file, then search the code for `AI-GUIDE:` comments.
+
+## What this is
+
+monk-crm-starter: a small CRM shell for one business. It ships with one module, the
+**Sales Dashboard** (Calendly bookings), and is built so new modules are added the
+same way. The people running it are mostly not developers, so keep things simple,
+readable and explained.
+
+## Stack
+
+- Next.js (App Router) + TypeScript, single app (no separate backend)
+- Tailwind CSS
+- Prisma + PostgreSQL (Railway Postgres)
+- recharts (charts), @dnd-kit/core (drag and drop)
+- Deployed on Railway
+- Node 24 (pinned in `.node-version`; `engines` allows >=22)
+- Prisma pinned to **7.10.0** stable. Never upgrade to a release candidate.
+
+**Do not add dependencies** beyond these without asking the owner first. No UI kits,
+icon packs, state libraries, auth libraries or date libraries: use the built-in
+`Intl` APIs for dates and time zones, and the inline icons in `src/components/icons.tsx`
+(no shadcn/ui, so no lucide-react).
+
+## Commands
+
+| Command | What it does |
+|---|---|
+| `npm install` | Install packages (also runs `prisma generate`) |
+| `npm run dev` | Start locally at http://localhost:3000 |
+| `npm run build` | Production build. **Must pass at the end of every change** |
+| `npm run db:migrate` | Create and apply a migration after editing `prisma/schema.prisma` (local only) |
+| `npm run db:studio` | Browse the database |
+| `npm run calendly:webhook` | Register the optional Calendly webhook |
+
+Railway runs `prisma migrate deploy` at start, never at build. Never run `migrate dev`
+against production.
+
+## Rules
+
+- **Secrets live only in `.env`** (local) or Railway variables (production). Never
+  commit them, print them, log them, or put them in error messages. `.env.example`
+  lists every variable with an empty value.
+- **Password gate:** `APP_PASSWORD` unset locally = open with a warning banner;
+  unset in production = locked behind a "Set APP_PASSWORD" screen.
+- **Demo data is flagged** (`source = DEMO`, `isDemo`). Code that removes demo data
+  must filter on those flags and never delete anything else.
+- **No real data.** Seed names, companies and emails are clearly fictional
+  (`@example.com`).
+- **Every file that touches an external service or required config starts with a
+  CONNECTION banner** (format below). Update `docs/CONNECTIONS.md` when you add one.
+- **Optimistic updates everywhere:** UI changes immediately, saves in the background,
+  rolls back with a short message if the save fails.
+- **Pages that read the database** export `const dynamic = "force-dynamic"`.
+- **Imports used at runtime go in `dependencies`**, not `devDependencies`.
+- **Migrations are additive.** Don't drop or rename columns that hold data; add new
+  ones instead.
+- Keep `package-lock.json` in sync with every dependency change.
+- Before pushing a deploy change: `rm -rf node_modules && npm ci && npm run build`.
+
+### CONNECTION banner format
+
+```ts
+/* ============================================================
+ * CONNECTION: <Service name>
+ * Required:   Yes | Optional (<what happens without it>)
+ * Env vars:   <VAR_ONE>, <VAR_TWO>
+ * Get it:     <where to click to get it>
+ * Plan:       <cost or plan needed>
+ * If missing: <exact behaviour>
+ * Docs:       docs/CONNECTIONS.md#<anchor>
+ * ============================================================ */
+```
+
+## Design rules
+
+Full detail in `docs/DESIGN.md`. The short version:
+
+- **Ma, Kanso, Shibui:** generous whitespace, every element earns its place, no heavy
+  shadows or gradients.
+- **Colors come from tokens only** (`src/theme/theme.css`). Never hard-code hex values
+  in components.
+  - Light: background `#FFFFFF`, surface `#FAFAFA`, border `#E5E5E5`, text `#1A1A1A` /
+    `#666666` / `#999999`.
+  - Dark: background `#262624`, surface `#2F2F2D`, border `#3D3D3B`, text `#F5F5F5` /
+    `#A3A3A3` / `#737373`.
+- **One accent color** (`--accent`, default `#FF2929`), used for the single main action
+  on a screen. Not for decoration, not for status.
+- Inter, 16px body, medium-weight (500) headings.
+- 4px grid. 32px page padding, 24px card padding. Radius: 8px cards, 6px buttons,
+  4px inputs.
+- Fixed 240px left sidebar, generated from the modules config.
+- Tables: 48px rows, sticky first column, scroll sideways instead of squeezing.
+- Motion is gentle and short: side panel slides in, board drag is smooth. Respect
+  `prefers-reduced-motion`.
+- Every list has an empty state and a loading state.
+
+## Module structure
+
+Every module lives in its own folder with the same shape. **Sales is the pattern to
+copy.**
+
+```
+src/modules/<module-id>/
+  module.ts            # Registers the module: id, label, href, icon. Imported by src/modules/index.ts
+  types.ts             # Shared types and constants for this module
+  components/          # React components used only by this module
+  server/
+    queries.ts         # Database reads
+    actions.ts         # Server actions (writes). Each checks the session
+    stats.ts           # Calculations (if the module has numbers)
+  integrations/        # External services this module talks to (each file has a CONNECTION banner)
+  demo/seed.ts         # Fictional demo data for this module
+
+src/app/(app)/<module-id>/page.tsx   # Thin page: loads data, renders the module's components
+```
+
+Shared code lives outside modules:
+
+```
+src/modules/index.ts   # The modules config array that drives the sidebar (AI-GUIDE)
+src/theme/theme.css    # Design tokens and the accent color (AI-GUIDE)
+src/components/        # Shared UI: Button, Card, Badge, SidePanel, icons
+src/lib/               # db, auth, env helpers
+src/proxy.ts           # Password gate (Next.js request proxy)
+prisma/schema.prisma   # Database schema (AI-GUIDE)
+```
+
+Modules must not import from each other's folders. If two modules need the same
+thing, move it to `src/components` or `src/lib`.
+
+To add a module, follow `docs/ADDING-A-MODULE.md`.
+
+## Key docs
+
+- `BUILD.md`: the Sales module's build doc (the template for new modules)
+- `docs/CONNECTIONS.md`: every external service and env var
+- `docs/DESIGN.md`: design system
+- `docs/ADDING-A-MODULE.md`: how to add a tab
+- `README.md`: setup and deploy
+
+## Progress
+
+- [x] Stage 0: Study reference, write BUILD.md and CLAUDE.md
+- [ ] Stage 1: Foundation (Next.js, theme, Prisma schema, seed, sidebar shell, password gate, health route, Railway config)
+- [ ] Stage 2: Bookings (table view, side panel, reps settings, call attempts, on demo data)
+- [ ] Stage 3: Board and stats (board with drag, stats row, filters, call-attempts-by-hour chart)
+- [ ] Stage 4: Calendly (polling sync, Sync now, /api/sync, optional webhooks, demo fallback, connection banners)
+- [ ] Stage 5: Docs and polish (README, docs, AI-GUIDE pass, empty and loading states, dark mode)
+- [ ] Stage 6: Final check (scan repo and history for copied code, real names, URLs, secrets)
