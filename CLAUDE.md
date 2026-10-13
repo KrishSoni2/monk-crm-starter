@@ -40,7 +40,8 @@ In shadcn, `accent` means the grey hover background, not the brand color.
 | `npm run build` | Production build. **Must pass at the end of every change** |
 | `npm run db:migrate` | Create and apply a migration after editing `prisma/schema.prisma` (local only) |
 | `npm run db:studio` | Browse the database |
-| `npm run calendly:webhook` | Register the optional Calendly webhook |
+| `npm run calendly:webhook -- create` | Register the optional Calendly webhook (`-- list`, `-- delete <uri>`) |
+| `npm run cron:sync` | What the Railway cron runs: asks the app to sync (needs APP_URL, SYNC_SECRET) |
 
 Railway runs `prisma migrate deploy` at start, never at build. Never run `migrate dev`
 against production.
@@ -120,6 +121,7 @@ src/modules/<module-id>/
     queries.ts         # Database reads
     actions.ts         # Server actions (writes). Each checks the session
   integrations/        # External services this module talks to (each file has a CONNECTION banner)
+    calendly/          #   client.ts (API), normalize.ts (API -> row), store.ts (save), sync.ts, webhook.ts
   demo/seed.ts         # Fictional demo data for this module
 
 src/app/(app)/<module-id>/page.tsx   # Thin page: loads data, renders the module's components
@@ -159,7 +161,7 @@ To add a module, follow `docs/ADDING-A-MODULE.md`.
 - [x] Stage 1: Foundation (Next.js, theme, Prisma schema, seed, sidebar shell, password gate, health route, Railway config)
 - [x] Stage 2: Bookings (table view, side panel, reps settings, call attempts, on demo data)
 - [x] Stage 3: Board and stats (board with drag, stats row, filters, call-attempts-by-hour chart)
-- [ ] Stage 4: Calendly (polling sync, Sync now, /api/sync, optional webhooks, demo fallback, connection banners)
+- [x] Stage 4: Calendly (polling sync, Sync now, /api/sync, optional webhooks, demo fallback, connection banners)
 - [ ] Stage 5: Docs and polish (README, docs, AI-GUIDE pass, empty and loading states, dark mode)
   - Collapsible sidebar for small screens
   - Keep the README notes already written (NODE_ENV password lock, npm audit warnings)

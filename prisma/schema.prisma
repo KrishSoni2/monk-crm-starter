@@ -116,7 +116,7 @@ model CallAttempt {
 model SyncRun {
   id         String    @id @default(cuid())
   source     String // manual | cron | webhook
-  status     String // running | ok | error
+  status     String // running | ok | partial | error
   startedAt  DateTime  @default(now())
   finishedAt DateTime?
   created    Int       @default(0)

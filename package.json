@@ -12,7 +12,9 @@
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "calendly:webhook": "node scripts/calendly-webhook.mjs",
+    "cron:sync": "node scripts/cron-sync.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "6.3.1",

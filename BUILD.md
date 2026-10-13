@@ -174,8 +174,17 @@ never has to call Calendly to render.
 - Auto-assign: if a booking has no rep and its Calendly host email matches a rep's
   email, it's assigned to that rep.
 - Triggers: "Sync now" button, and `POST /api/sync` with
-  `Authorization: Bearer <SYNC_SECRET>` (called by a Railway cron every 15 minutes).
+  `Authorization: Bearer <SYNC_SECRET>` (called by a Railway cron every 15 minutes;
+  the cron service runs `npm run cron:sync`). Without `SYNC_SECRET`, `/api/sync`
+  returns 503.
+- Invitees are fetched 4 events at a time, then saved one at a time with reschedules
+  last, so a rescheduled booking always finds the row it replaces.
+- Rate limits (429) are retried up to 3 times. The token is only ever sent to
+  api.calendly.com, and never appears in logs or error messages.
 - Only one sync runs at a time; a sync stuck for over 10 minutes is treated as dead.
+- Each run is saved in SyncRun with status `ok`, `partial` (some events failed),
+  `error` or `running`. The Sales header shows "Last synced 4 min ago"; Settings
+  shows the last result and which variables are set (never their values).
 - The first real sync deletes **only rows flagged as demo data** (`source = DEMO`
   bookings and `isDemo` reps, plus their call attempts). It never touches anything else.
 
@@ -189,8 +198,11 @@ never has to call Calendly to render.
   environment.
 - The webhook goes through exactly the same normalize + upsert code as polling, so
   both paths produce identical rows.
-- `npm run calendly:webhook` registers the subscription (and lists or deletes
-  existing ones) using `CALENDLY_TOKEN`, `APP_URL` and the signing key.
+- `npm run calendly:webhook -- create` registers the subscription (`-- list` and
+  `-- delete <uri>` manage existing ones) using `CALENDLY_TOKEN`, `APP_URL` and the
+  signing key. It tries organization scope, then user scope.
+- Unknown event types get a 200 and are ignored. A save error returns 500 so Calendly
+  retries the delivery.
 
 ### Demo mode
 - On when `CALENDLY_TOKEN` is missing. If the database has no bookings, about 40 demo

@@ -12,6 +12,12 @@ import type { BookingPatch, BookingRow } from "@/modules/sales/types";
 // message explains what happened.
 export function useBookings(initial: BookingRow[]) {
   const [bookings, setBookings] = useState(initial);
+  // After a sync the page sends fresh bookings: start from those.
+  const [lastInitial, setLastInitial] = useState(initial);
+  if (initial !== lastInitial) {
+    setLastInitial(initial);
+    setBookings(initial);
+  }
   // Always-current copy, so we can note the old values before changing them.
   const current = useRef(bookings);
   useEffect(() => {

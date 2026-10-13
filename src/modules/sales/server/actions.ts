@@ -11,6 +11,7 @@
 // - Only touch team-owned fields. Calendly-owned fields belong to the sync.
 import { requireSession } from "@/lib/auth";
 import { getDb } from "@/lib/db";
+import { runSync } from "@/modules/sales/integrations/calendly/sync";
 import {
   BOOKING_STATUSES,
   REP_COLORS,
@@ -151,4 +152,16 @@ export async function deleteRep(id: string): Promise<ActionResult> {
   } catch {
     return fail("Couldn't remove that rep.");
   }
+}
+
+// "Sync now" button. In demo mode it explains what to set instead of failing.
+export async function syncNow(): Promise<ActionResult<{ message: string }>> {
+  const denied = await guard();
+  if (denied) return fail(denied);
+  const result = await runSync({ source: "manual" });
+  if (result.status === "skipped") return fail(result.reason);
+  if (result.status === "error") return fail(result.error);
+  const parts = [`${result.created} new`, `${result.updated} updated`];
+  if (result.errors.length) parts.push(`${result.errors.length} failed`);
+  return { ok: true, data: { message: `Synced ${result.events} Calendly events: ${parts.join(", ")}.` } };
 }
