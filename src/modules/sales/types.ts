@@ -27,3 +27,52 @@ export const repColorVar = (color: string) =>
   `var(--rep-${(REP_COLORS as readonly string[]).includes(color) ? color : "slate"})`;
 
 export type BookingQuestion = { question: string; answer: string };
+
+export const BOOKING_STATUSES = BOARD_COLUMNS.map((c) => c.status);
+
+// What the browser receives: plain JSON (dates as ISO strings), shaped for the UI.
+export type CallAttemptRow = {
+  id: string;
+  attemptedAt: string;
+  answered: boolean;
+  note: string | null;
+  repId: string | null;
+};
+
+export type BookingRow = {
+  id: string;
+  eventTypeName: string | null;
+  inviteeName: string;
+  inviteeEmail: string;
+  inviteePhone: string | null;
+  inviteeTimeZone: string | null;
+  startTime: string;
+  endTime: string;
+  locationType: string | null;
+  joinUrl: string | null;
+  rescheduleUrl: string | null;
+  questions: BookingQuestion[];
+  canceledAt: string | null;
+  cancelReason: string | null;
+  canceledBy: string | null;
+  status: BookingStatus;
+  qualified: boolean | null;
+  qualifiedReason: string | null;
+  notes: string | null;
+  repId: string | null;
+  isDemo: boolean;
+  callAttempts: CallAttemptRow[];
+};
+
+export type RepRow = {
+  id: string;
+  name: string;
+  email: string;
+  color: string;
+  bookingCount: number;
+};
+
+// The fields the team can change on a booking. Sync never touches these.
+export type BookingPatch = Partial<Pick<BookingRow, "status" | "repId" | "qualified" | "qualifiedReason" | "notes">>;
+
+export type ActionResult<T = undefined> = { ok: true; data: T } | { ok: false; error: string };

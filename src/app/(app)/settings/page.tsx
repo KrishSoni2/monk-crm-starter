@@ -1,13 +1,17 @@
 import { PageHeader } from "@/components/page-header";
+import { RepsManager } from "@/modules/sales/components/reps-manager";
+import { listReps, prepareSalesData } from "@/modules/sales/server/queries";
 
 export const dynamic = "force-dynamic";
 
-// Stage 1 placeholder. Reps management and the Calendly connection status come next.
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  await prepareSalesData();
+  const reps = await listReps();
+
   return (
     <div className="flex flex-col gap-8">
       <PageHeader title="Settings" description="Sales reps and connections." />
-      <p className="text-sm text-subtle">Rep management arrives in the next build stage.</p>
+      <RepsManager initialReps={reps} />
     </div>
   );
 }

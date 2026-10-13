@@ -1,4 +1,4 @@
-import type { IconName } from "@/components/icons";
+import type { LucideIcon } from "lucide-react";
 
 export type ModuleDefinition = {
   /** Folder name under src/modules and the URL segment, e.g. "sales". */
@@ -7,8 +7,8 @@ export type ModuleDefinition = {
   label: string;
   /** Page the sidebar links to. Must match src/app/(app)/<id>/page.tsx. */
   href: string;
-  /** An icon name from src/components/icons.tsx. */
-  icon: IconName;
+  /** Any icon from lucide-react (browse them at lucide.dev/icons). */
+  icon: LucideIcon;
   /** One line describing the module (for docs and AI assistants). */
   description: string;
 };

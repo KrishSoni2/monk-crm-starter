@@ -15,15 +15,21 @@ readable and explained.
 - Next.js (App Router) + TypeScript, single app (no separate backend)
 - Tailwind CSS
 - Prisma + PostgreSQL (Railway Postgres)
-- recharts (charts), @dnd-kit/core (drag and drop)
+- shadcn/ui components (Radix base, in `src/components/ui`) + lucide-react icons
+- sonner (toasts, via shadcn), recharts (charts), @dnd-kit/core (drag and drop)
 - Deployed on Railway
 - Node 24 (pinned in `.node-version`; `engines` allows >=22)
 - Prisma pinned to **7.10.0** stable. Never upgrade to a release candidate.
 
-**Do not add dependencies** beyond these without asking the owner first. No UI kits,
-icon packs, state libraries, auth libraries or date libraries: use the built-in
-`Intl` APIs for dates and time zones, and the inline icons in `src/components/icons.tsx`
-(no shadcn/ui, so no lucide-react).
+**Do not add dependencies** beyond these without asking the owner first. No other UI
+kits, icon packs, state libraries, auth libraries or date libraries: use the built-in
+`Intl` APIs for dates and time zones (helpers in `src/lib/format.ts`).
+
+**shadcn/ui:** add components with `npx shadcn@latest add <name>`. Then check the new
+file for: hard-coded colors (use tokens), heavy shadows or backdrop blur (remove them),
+`next-themes` imports (use our theme toggle instead; see `src/components/ui/sonner.tsx`),
+and radius (buttons `rounded-md` = 6px, inputs `rounded-sm` = 4px, cards `rounded-lg` = 8px).
+In shadcn, `accent` means the grey hover background, not the brand color.
 
 ## Commands
 
@@ -87,8 +93,9 @@ Full detail in `docs/DESIGN.md`. The short version:
     `#666666` / `#999999`.
   - Dark: background `#262624`, surface `#2F2F2D`, border `#3D3D3B`, text `#F5F5F5` /
     `#A3A3A3` / `#737373`.
-- **One accent color** (`--accent`, default `#FF2929`), used for the single main action
-  on a screen. Not for decoration, not for status.
+- **One brand color** (`--brand`, default `#FF2929`, exposed to shadcn as `primary`),
+  used for the single main action on a screen (`<Button>` default variant). Not for
+  decoration, not for status. Everything else is a `variant="outline"` or `"ghost"` button.
 - Inter, 16px body, medium-weight (500) headings.
 - 4px grid. 32px page padding, 24px card padding. Radius: 8px cards, 6px buttons,
   4px inputs.
@@ -122,8 +129,9 @@ Shared code lives outside modules:
 
 ```
 src/modules/index.ts   # The modules config array that drives the sidebar (AI-GUIDE)
-src/theme/theme.css    # Design tokens and the accent color (AI-GUIDE)
-src/components/        # Shared UI: Button, Card, Badge, SidePanel, icons
+src/theme/theme.css    # Design tokens, shadcn colors and the brand color (AI-GUIDE)
+src/components/ui/     # shadcn/ui components (Button, Input, Select, Sheet, ...)
+src/components/        # App shell: sidebar, page header, notices, theme toggle
 src/lib/               # db, auth, env helpers
 src/proxy.ts           # Password gate (Next.js request proxy)
 prisma/schema.prisma   # Database schema (AI-GUIDE)
@@ -149,7 +157,7 @@ To add a module, follow `docs/ADDING-A-MODULE.md`.
 
 - [x] Stage 0: Study reference, write BUILD.md and CLAUDE.md
 - [x] Stage 1: Foundation (Next.js, theme, Prisma schema, seed, sidebar shell, password gate, health route, Railway config)
-- [ ] Stage 2: Bookings (table view, side panel, reps settings, call attempts, on demo data)
+- [x] Stage 2: Bookings (table view, side panel, reps settings, call attempts, on demo data)
 - [ ] Stage 3: Board and stats (board with drag, stats row, filters, call-attempts-by-hour chart)
 - [ ] Stage 4: Calendly (polling sync, Sync now, /api/sync, optional webhooks, demo fallback, connection banners)
 - [ ] Stage 5: Docs and polish (README, docs, AI-GUIDE pass, empty and loading states, dark mode)

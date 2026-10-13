@@ -1,14 +1,14 @@
 "use client";
 
+import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Icon } from "@/components/icons";
 
 // Runs before the page paints (see src/app/layout.tsx) so there's no light flash in
 // dark mode. A saved choice wins; otherwise we follow the system setting.
 export const themeInitScript = `(function(){try{var t=localStorage.getItem("theme");var d=t?t==="dark":window.matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.classList.toggle("dark",d)}catch(e){}})();`;
 
-export function ThemeToggle() {
-  const [dark, setDark] = useState<boolean | null>(null);
+export function ThemeToggle({ className }: { className?: string }) {
+  const [dark, setDark] = useState(false);
 
   useEffect(() => {
     setDark(document.documentElement.classList.contains("dark"));
@@ -25,13 +25,10 @@ export function ThemeToggle() {
     setDark(next);
   }
 
+  const Icon = dark ? Sun : Moon;
   return (
-    <button
-      type="button"
-      onClick={toggle}
-      className="flex h-9 w-full items-center gap-3 rounded-button px-3 text-sm text-muted transition-colors hover:bg-surface-hover hover:text-text"
-    >
-      <Icon name={dark ? "sun" : "moon"} />
+    <button type="button" onClick={toggle} className={className}>
+      <Icon strokeWidth={1.75} />
       {dark ? "Light mode" : "Dark mode"}
     </button>
   );
