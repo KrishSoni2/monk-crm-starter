@@ -9,6 +9,7 @@ import { timeAgo } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
 import { syncNow } from "@/modules/sales/server/actions";
 
+// Connection status (a pulsing dot when connected) plus the one brand-colored button.
 export function SyncButton({
   demoMode,
   lastSyncedAt,
@@ -51,21 +52,26 @@ export function SyncButton({
   }
 
   const busy = syncing || pending;
+  const failed = lastStatus === "error" || lastStatus === "partial";
   const label = demoMode
     ? "Calendly not connected"
     : lastSyncedAt && now
-      ? `Last synced ${timeAgo(lastSyncedAt, now)}${lastStatus === "error" ? " (failed)" : lastStatus === "partial" ? " (some events failed)" : ""}`
+      ? `Synced ${timeAgo(lastSyncedAt, now)}${lastStatus === "error" ? " (failed)" : lastStatus === "partial" ? " (some events failed)" : ""}`
       : lastSyncedAt
         ? ""
         : "Never synced";
 
   return (
-    <div className="flex items-center gap-3">
-      <span className="text-sm text-subtle" aria-live="polite">
+    <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground" aria-live="polite">
+        <span className="relative flex size-2">
+          {!demoMode && !failed && <span className="absolute inline-flex size-full animate-ping rounded-full bg-positive opacity-60" />}
+          <span className={cn("relative inline-flex size-2 rounded-full", demoMode ? "bg-subtle" : failed ? "bg-negative" : "bg-positive")} />
+        </span>
         {busy ? "Syncing…" : label}
-      </span>
+      </div>
       <Button onClick={run} disabled={busy}>
-        <RefreshCw className={cn(busy && "animate-spin")} />
+        <RefreshCw className={cn("size-4", busy && "animate-spin")} />
         Sync now
       </Button>
     </div>

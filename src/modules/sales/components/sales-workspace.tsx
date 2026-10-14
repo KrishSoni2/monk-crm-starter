@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useViewerTimeZone } from "@/lib/use-viewer-time-zone";
 import { BookingPanel } from "@/modules/sales/components/booking-panel";
 import { BookingsBoard } from "@/modules/sales/components/bookings-board";
 import { BookingsTable } from "@/modules/sales/components/bookings-table";
 import { CallsByHourChart } from "@/modules/sales/components/calls-by-hour-chart";
 import { FiltersBar, type SalesView } from "@/modules/sales/components/filters-bar";
-import { segmentItemClass } from "@/modules/sales/components/segment";
 import { StatsRow } from "@/modules/sales/components/stats-row";
 import { useBookings } from "@/modules/sales/components/use-bookings";
 import {
@@ -81,28 +81,32 @@ export function SalesWorkspace({ initialBookings, reps }: { initialBookings: Boo
   const rows = when === "upcoming" ? upcoming : past;
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="space-y-6">
       <FiltersBar filters={filters} onChange={setFilters} reps={reps} view={view} onViewChange={setView} />
       <StatsRow stats={stats} />
 
       {view === "table" ? (
         <div className="flex flex-col gap-4">
-          <ToggleGroup
-            type="single"
-            value={when}
-            onValueChange={(v) => v && setWhen(v as "upcoming" | "past")}
-            aria-label="Upcoming or past"
-          >
-            <ToggleGroupItem value="upcoming" className={segmentItemClass}>
-              Upcoming <span className="text-subtle tabular-nums">{upcoming.length}</span>
-            </ToggleGroupItem>
-            <ToggleGroupItem value="past" className={segmentItemClass}>
-              Past <span className="text-subtle tabular-nums">{past.length}</span>
-            </ToggleGroupItem>
-          </ToggleGroup>
+          <Tabs value={when} onValueChange={(v) => setWhen(v as "upcoming" | "past")}>
+            <TabsList aria-label="Upcoming or past">
+              <TabsTrigger value="upcoming" className="gap-2 px-3">
+                Upcoming
+                <Badge variant="secondary" className="h-5 min-w-5 justify-center rounded-full px-1.5 tabular-nums">
+                  {upcoming.length}
+                </Badge>
+              </TabsTrigger>
+              <TabsTrigger value="past" className="gap-2 px-3">
+                Past
+                <Badge variant="secondary" className="h-5 min-w-5 justify-center rounded-full px-1.5 tabular-nums">
+                  {past.length}
+                </Badge>
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
           <BookingsTable
             bookings={rows}
-            repsById={repsById}
+            reps={reps}
+            onPatch={patchBooking}
             selectedId={selectedId}
             onSelect={setSelectedId}
             emptyTitle={when === "upcoming" ? "No upcoming bookings" : "No past bookings"}

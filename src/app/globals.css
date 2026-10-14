@@ -20,20 +20,75 @@
     @apply bg-background font-sans text-foreground;
     font-size: 16px;
     line-height: 1.5;
+    font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3, h4 {
-    font-weight: 500;
-    letter-spacing: -0.01em;
+  /* Headings: medium weight. Tracking is set per size where it matters. */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium tracking-tight;
   }
   button:not(:disabled),
-  [role="button"]:not(:disabled) {
+  [role="button"]:not(:disabled),
+  summary {
     cursor: pointer;
   }
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      transition-duration: 0.01ms !important;
-    }
+  button:disabled {
+    cursor: default;
+  }
+}
+
+/* Shell type styles. Tracking and leading are size-specific: big text tightens, small
+   uppercase labels open up. */
+@layer components {
+  .text-eyebrow {
+    font-size: 0.6875rem;
+    line-height: 1.2;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .text-section-label {
+    font-size: 0.6875rem;
+    line-height: 1.2;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Respond on press: a tiny, quick scale so buttons feel touched. */
+@media (prefers-reduced-motion: no-preference) {
+  button:not(:disabled):active,
+  [role="button"]:not([aria-disabled="true"]):active {
+    transform: scale(0.985);
+    transition: transform 90ms ease-out;
+  }
+}
+
+/* Every page settles in gently on navigation (see PageShell). */
+.enter-settle {
+  animation: enter-settle 240ms var(--ease-settle);
+}
+@keyframes enter-settle {
+  from { opacity: 0; transform: translate3d(0, 4px, 0); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enter-settle { animation: fade-in-only 160ms ease; }
+  @keyframes fade-in-only { from { opacity: 0; } to { opacity: 1; } }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
 }

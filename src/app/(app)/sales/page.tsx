@@ -1,4 +1,4 @@
-import { PageHeader } from "@/components/page-header";
+import { PageMasthead, PageShell } from "@/components/layout/page-shell";
 import { isDemoMode } from "@/lib/env";
 import { SalesWorkspace } from "@/modules/sales/components/sales-workspace";
 import { SyncButton } from "@/modules/sales/components/sync-button";
@@ -12,10 +12,11 @@ export default async function SalesPage() {
   const [bookings, reps, lastSync] = await Promise.all([listBookings(), listReps(), getLastSyncRun()]);
 
   return (
-    <div className="flex flex-col gap-8">
-      <PageHeader
-        title="Sales"
-        description="Every Calendly booking in one place."
+    <PageShell>
+      <PageMasthead
+        eyebrow="Sales"
+        title="Bookings & outcomes"
+        subtitle="Every Calendly booking in one place: who was called, who answered, and how it ended."
         actions={
           <SyncButton
             demoMode={isDemoMode()}
@@ -25,6 +26,6 @@ export default async function SalesPage() {
         }
       />
       <SalesWorkspace initialBookings={bookings} reps={reps} />
-    </div>
+    </PageShell>
   );
 }

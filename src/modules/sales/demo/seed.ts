@@ -80,7 +80,8 @@ export function buildDemoData(now = new Date()) {
 
   for (let i = 0; i < total; i++) {
     const first = FIRST[i % FIRST.length];
-    const last = LAST[(i * 7) % LAST.length];
+    // Shift the surname each time the first names repeat, so every demo name is unique.
+    const last = LAST[(i * 7 + Math.floor(i / FIRST.length)) % LAST.length];
     const company = COMPANIES[i % COMPANIES.length];
     const timeZone = TIME_ZONES[(i * 3) % TIME_ZONES.length];
     const eventType = pick(rand, EVENT_TYPES);

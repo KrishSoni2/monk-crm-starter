@@ -1,16 +1,15 @@
 "use client";
 
-import { LayoutGrid, Table2 } from "lucide-react";
+import { CalendarDays, LayoutGrid, Table2, UserRound } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { RepDot } from "@/modules/sales/components/rep-label";
-import { segmentItemClass } from "@/modules/sales/components/segment";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { InitialsAvatar } from "@/modules/sales/components/rep-label";
 import { DATE_RANGES, type DateRange, type SalesFilters } from "@/modules/sales/stats";
 import type { RepRow } from "@/modules/sales/types";
 
 export type SalesView = "table" | "board";
 
-// One row of filters above everything they affect: stats, list and chart.
+// One row of filters above everything they affect: stats, list, board and chart.
 export function FiltersBar({
   filters,
   onChange,
@@ -26,51 +25,55 @@ export function FiltersBar({
 }) {
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <ToggleGroup
-        type="single"
-        value={filters.range}
-        onValueChange={(v) => v && onChange({ ...filters, range: v as DateRange })}
-        aria-label="Date range"
-      >
-        {DATE_RANGES.map((r) => (
-          <ToggleGroupItem key={r.value} value={r.value} className={segmentItemClass}>
-            {r.label}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+      <div className="flex items-center gap-2">
+        <CalendarDays className="size-4 text-muted-foreground" />
+        <Select value={filters.range} onValueChange={(range) => onChange({ ...filters, range: range as DateRange })}>
+          <SelectTrigger className="h-8 w-[140px]" aria-label="Date range">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {DATE_RANGES.map((r) => (
+              <SelectItem key={r.value} value={r.value}>
+                {r.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-      <Select value={filters.rep} onValueChange={(rep) => onChange({ ...filters, rep })}>
-        <SelectTrigger className="w-44" aria-label="Rep">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All reps</SelectItem>
-          {reps.map((r) => (
-            <SelectItem key={r.id} value={r.id}>
-              <RepDot color={r.color} />
-              {r.name}
-            </SelectItem>
-          ))}
-          <SelectItem value="unassigned">Unassigned</SelectItem>
-        </SelectContent>
-      </Select>
+      <div className="flex items-center gap-2">
+        <UserRound className="size-4 text-muted-foreground" />
+        <Select value={filters.rep} onValueChange={(rep) => onChange({ ...filters, rep })}>
+          <SelectTrigger className="h-8 w-[160px]" aria-label="Rep">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All reps</SelectItem>
+            {reps.map((r) => (
+              <SelectItem key={r.id} value={r.id}>
+                <span className="flex items-center gap-2">
+                  <InitialsAvatar name={r.name} color={r.color} className="size-5 [&_[data-slot=avatar-fallback]]:text-[10px]" />
+                  {r.name}
+                </span>
+              </SelectItem>
+            ))}
+            <SelectItem value="unassigned">Unassigned</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-      <ToggleGroup
-        type="single"
-        value={view}
-        onValueChange={(v) => v && onViewChange(v as SalesView)}
-        aria-label="View"
-        className="ml-auto"
-      >
-        <ToggleGroupItem value="table" className={segmentItemClass}>
-          <Table2 />
-          Table
-        </ToggleGroupItem>
-        <ToggleGroupItem value="board" className={segmentItemClass}>
-          <LayoutGrid />
-          Board
-        </ToggleGroupItem>
-      </ToggleGroup>
+      <Tabs value={view} onValueChange={(v) => onViewChange(v as SalesView)} className="ml-auto">
+        <TabsList>
+          <TabsTrigger value="table" className="gap-2 px-3">
+            <Table2 className="size-4" />
+            Table
+          </TabsTrigger>
+          <TabsTrigger value="board" className="gap-2 px-3">
+            <LayoutGrid className="size-4" />
+            Board
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
     </div>
   );
 }

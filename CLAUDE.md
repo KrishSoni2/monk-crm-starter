@@ -28,7 +28,8 @@ kits, icon packs, state libraries, auth libraries or date libraries: use the bui
 **shadcn/ui:** add components with `npx shadcn@latest add <name>`. Then check the new
 file for: hard-coded colors (use tokens), heavy shadows or backdrop blur (remove them),
 `next-themes` imports (use our theme toggle instead; see `src/components/ui/sonner.tsx`),
-and radius (buttons `rounded-md` = 6px, inputs `rounded-sm` = 4px, cards `rounded-lg` = 8px).
+Radix imports (use the combined `radix-ui` package) and radius (cards `rounded-xl`,
+buttons and inputs `rounded-md`).
 In shadcn, `accent` means the grey hover background, not the brand color.
 
 ## Commands
@@ -97,26 +98,31 @@ against production.
 
 Full detail in `docs/DESIGN.md`. The short version:
 
-- **Ma, Kanso, Shibui:** generous whitespace, every element earns its place, no heavy
-  shadows or gradients.
-- **Colors come from tokens only** (`src/theme/theme.css`). Never hard-code hex values
-  in components.
-  - Light: background `#FFFFFF`, surface `#FAFAFA`, border `#E5E5E5`, text `#1A1A1A` /
+- **Ma, Kanso, Shibui:** generous whitespace, every element earns its place, soft depth
+  only (the `shadow-card` token), no gradients.
+- **Colors come from tokens only** (`src/theme/theme.css`, the only theme file). Never
+  hard-code hex values in components; add a token in both the light and dark blocks.
+- **Three surface tiers:** canvas (`bg-canvas`, the tinted page) -> card (`bg-card
+  shadow-card rounded-xl border`) -> inset (`bg-inset`, a soft box inside a card).
+  - Light: canvas `#F5F4F2`, card `#FFFFFF`, border `#E5E5E5`, text `#1A1A1A` /
     `#666666` / `#999999`.
-  - Dark: background `#262624`, surface `#2F2F2D`, border `#3D3D3B`, text `#F5F5F5` /
+  - Dark: canvas `#201F1D`, card `#2F2F2D`, border `#3D3D3B`, text `#F5F5F5` /
     `#A3A3A3` / `#737373`.
-- **One brand color** (`--brand`, default `#FF2929`, exposed to shadcn as `primary`),
-  used for the single main action on a screen (`<Button>` default variant). Not for
-  decoration, not for status. Everything else is a `variant="outline"` or `"ghost"` button.
-- Inter, 16px body, medium-weight (500) headings.
-- 4px grid. 32px page padding, 24px card padding. Radius: 8px cards, 6px buttons,
-  4px inputs.
-- Fixed 240px left sidebar, generated from the modules config. Below the `md`
-  breakpoint it folds into a top bar with a menu button that opens it as a drawer.
+- **One brand color** (`--brand`, default `#FF2929`, exposed to shadcn as `primary`).
+  Buttons: only the single main action on a screen uses the default `<Button>`; the rest
+  are `variant="outline"` or `"ghost"`. The brand also marks small app accents (page
+  eyebrow labels, app-name tile, active sidebar item, links, focus rings). Never status.
+- **Statuses are tinted pills** with their own tokens (`bg-status-<status>` +
+  `text-status-<status>-foreground`), always with the word.
+- Inter, 16px body. Page titles `text-3xl` semibold; other headings medium (500).
+- 4px grid. Radius: cards 12px (`rounded-xl`), buttons and inputs 6px (`rounded-md`),
+  pills `rounded-full`.
+- Shell (`src/components/layout/`): sidebar from the modules config, 240px, collapsible
+  to 64px, a drawer below `md`; a floating header pill (theme toggle, account menu);
+  every page opens with `PageMasthead` inside `PageShell`. The app name is `APP_NAME`.
 - Rebrand by changing `--brand` in `src/theme/theme.css`, never `--accent`.
-- Tables: 48px rows, sticky first column, scroll sideways instead of squeezing.
-- Motion is gentle and short: side panel slides in, board drag is smooth. Respect
-  `prefers-reduced-motion`.
+- Tables: rows at least 48px, sticky first column, scroll sideways instead of squeezing.
+- Motion is gentle and short, on `--ease-settle`. Respect `prefers-reduced-motion`.
 - Every list has an empty state and a loading state.
 
 ## Module structure
@@ -147,7 +153,9 @@ Shared code lives outside modules:
 src/modules/index.ts   # The modules config array that drives the sidebar (AI-GUIDE)
 src/theme/theme.css    # Design tokens, shadcn colors and the brand color (AI-GUIDE)
 src/components/ui/     # shadcn/ui components (Button, Input, Select, Sheet, ...)
-src/components/        # App shell: sidebar, page header, notices, theme toggle
+src/components/layout/ # App shell: sidebar, header pill, page masthead, app name
+src/components/auth/   # Login and setup screens
+src/components/        # Theme toggle
 src/lib/               # db, auth, env helpers
 src/proxy.ts           # Password gate (Next.js request proxy)
 prisma/schema.prisma   # Database schema (AI-GUIDE)
@@ -182,3 +190,4 @@ To add a module, follow `docs/ADDING-A-MODULE.md`.
 - [x] Review fixes: No-show reset on reschedule, vitest suite (`npm test`)
 - [x] Stage 5: Docs and polish (README, docs, AI-GUIDE pass, empty, loading and error states, dark mode, collapsible sidebar on small screens)
 - [x] Stage 6: Final check (scan repo and history for copied code, real names, URLs, secrets)
+- [x] UI refresh: card-on-canvas shell, collapsible sidebar, header pill, status pills, inline table edits

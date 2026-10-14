@@ -1,5 +1,5 @@
-import { Notice } from "@/components/notice";
-import { MobileNav, Sidebar } from "@/components/sidebar";
+import { AppShell } from "@/components/layout/app-shell";
+import { SetupNotice } from "@/components/layout/page-shell";
 import { getAuthMode } from "@/lib/auth";
 import { env, isDemoMode } from "@/lib/env";
 
@@ -10,25 +10,26 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const hasDatabase = Boolean(env.databaseUrl());
 
   return (
-    <div className="min-h-screen">
-      <Sidebar demoMode={isDemoMode()} canSignOut={authMode === "protected"} />
-      <div className="min-w-0 md:ml-sidebar">
-        <MobileNav demoMode={isDemoMode()} canSignOut={authMode === "protected"} />
-        {authMode === "open" && (
-          <Notice>
+    <AppShell
+      demoMode={isDemoMode()}
+      canSignOut={authMode === "protected"}
+      notice={
+        authMode === "open" ? (
+          <SetupNotice>
             No APP_PASSWORD is set, so anyone who can reach this app can use it. That&apos;s fine on your own
             computer. Set one before you deploy (see docs/CONNECTIONS.md#app-password).
-          </Notice>
-        )}
-        <main className="p-4 md:p-page">{hasDatabase ? children : <DatabaseMissing />}</main>
-      </div>
-    </div>
+          </SetupNotice>
+        ) : null
+      }
+    >
+      {hasDatabase ? children : <DatabaseMissing />}
+    </AppShell>
   );
 }
 
 function DatabaseMissing() {
   return (
-    <div className="max-w-xl rounded-card border p-card">
+    <div className="mx-auto max-w-xl rounded-xl border bg-card p-6 shadow-card">
       <h1 className="text-xl">Connect a database to get started</h1>
       <p className="mt-3 text-muted-foreground">
         DATABASE_URL isn&apos;t set. Copy <code className="text-foreground">.env.example</code> to{" "}

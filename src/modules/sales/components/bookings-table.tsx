@@ -1,30 +1,34 @@
 "use client";
 
-import { CalendarX2 } from "lucide-react";
-import { cityName, formatDateTime, formatTime } from "@/lib/format";
+import { Calendar, CalendarX2, Clock, Mail } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { cityName, formatDate, formatTime } from "@/lib/format";
 import { useViewerTimeZone } from "@/lib/use-viewer-time-zone";
 import { cn } from "@/lib/utils";
-import { RepLabel } from "@/modules/sales/components/rep-label";
-import { CanceledTag, StatusBadge } from "@/modules/sales/components/status-badge";
-import type { BookingRow, RepRow } from "@/modules/sales/types";
+import { InitialsAvatar } from "@/modules/sales/components/rep-label";
+import { CanceledTag, STATUS_PILL } from "@/modules/sales/components/status-badge";
+import { BOARD_COLUMNS, STATUS_LABELS, type BookingPatch, type BookingRow, type RepRow } from "@/modules/sales/types";
 
-// Rows are 48px tall and the first column stays put while the table scrolls sideways,
-// so nothing gets squeezed on smaller screens.
-const headClass = "h-10 px-4 text-left text-xs font-medium whitespace-nowrap text-muted-foreground";
-const cellClass = "h-row px-4 whitespace-nowrap";
+const UNASSIGNED = "unassigned";
+// The first column stays put while the table scrolls sideways, so nothing gets squeezed.
+const stickyCell = "sticky left-0 z-10 bg-card transition-colors group-hover:bg-muted";
 
 export function BookingsTable({
   bookings,
-  repsById,
+  reps,
   selectedId,
   onSelect,
+  onPatch,
   emptyTitle = "No bookings yet",
   emptyHint = "New Calendly bookings show up here after the next sync.",
 }: {
   bookings: BookingRow[];
-  repsById: Map<string, RepRow>;
+  reps: RepRow[];
   selectedId: string | null;
   onSelect: (id: string) => void;
+  onPatch: (id: string, patch: BookingPatch) => void;
   emptyTitle?: string;
   emptyHint?: string;
 }) {
@@ -32,7 +36,7 @@ export function BookingsTable({
 
   if (bookings.length === 0) {
     return (
-      <div className="flex flex-col items-center rounded-card border px-card py-16 text-center">
+      <div className="flex flex-col items-center rounded-lg border bg-card px-6 py-16 text-center">
         <CalendarX2 className="size-6 text-subtle" strokeWidth={1.5} />
         <p className="mt-4 font-medium">{emptyTitle}</p>
         <p className="mt-1 max-w-sm text-sm text-muted-foreground">{emptyHint}</p>
@@ -41,71 +45,133 @@ export function BookingsTable({
   }
 
   return (
-    <div className="overflow-x-auto rounded-card border">
-      <table className="w-full min-w-[1080px] border-collapse text-sm">
-        <thead className="bg-surface">
-          <tr className="border-b">
-            <th className={cn(headClass, "sticky left-0 z-10 border-r bg-surface")}>Invitee</th>
-            <th className={headClass}>Meeting (your time)</th>
-            <th className={headClass}>Event type</th>
-            <th className={headClass}>Rep</th>
-            <th className={headClass}>Status</th>
-            <th className={headClass}>Qualified</th>
-            <th className={headClass}>Calls</th>
-            <th className={headClass}>Their time</th>
-          </tr>
-        </thead>
-        <tbody>
+    <div className="overflow-hidden rounded-lg border bg-card">
+      <Table className="min-w-[1180px]">
+        <TableHeader>
+          <TableRow className="hover:bg-transparent">
+            <TableHead className={cn("min-w-[240px] border-r", "sticky left-0 z-10 bg-card")}>Invitee</TableHead>
+            <TableHead className="min-w-[160px]">Scheduled</TableHead>
+            <TableHead className="min-w-[180px]">Assigned To</TableHead>
+            <TableHead className="min-w-[130px]">Status</TableHead>
+            <TableHead className="min-w-[100px]">Event Type</TableHead>
+            <TableHead className="min-w-[90px]">Qualified</TableHead>
+            <TableHead className="min-w-[100px]">Calls</TableHead>
+            <TableHead className="min-w-[150px]">Their Time</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {bookings.map((b) => {
             const selected = b.id === selectedId;
+            const upcoming = Date.parse(b.endTime) > Date.now();
             const answered = b.callAttempts.filter((c) => c.answered).length;
             return (
-              <tr
+              <TableRow
                 key={b.id}
                 onClick={() => onSelect(b.id)}
-                className={cn(
-                  "group cursor-pointer border-b last:border-b-0 transition-colors hover:bg-accent/60",
-                  selected && "bg-accent/60",
-                  b.canceledAt && "text-muted-foreground",
-                )}
+                data-state={selected ? "selected" : undefined}
+                className="group h-row cursor-pointer transition-colors duration-150"
               >
-                <td
-                  className={cn(
-                    cellClass,
-                    "sticky left-0 z-10 border-r bg-background transition-colors group-hover:bg-accent",
-                    selected && "bg-accent",
-                  )}
-                >
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSelect(b.id);
-                    }}
-                    className="flex max-w-56 items-center gap-2 text-left font-medium text-foreground outline-none focus-visible:underline"
+                <TableCell className={cn(stickyCell, "border-r", selected && "bg-muted")}>
+                  <div className="flex items-center gap-3">
+                    <InitialsAvatar name={b.inviteeName} />
+                    <div className="min-w-0">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onSelect(b.id);
+                        }}
+                        className="flex max-w-48 items-center gap-2 text-left text-sm font-medium outline-none focus-visible:underline"
+                      >
+                        <span className="truncate">{b.inviteeName}</span>
+                        {b.canceledAt && <CanceledTag />}
+                      </button>
+                      <p className="flex max-w-48 items-center gap-1 truncate text-xs text-muted-foreground">
+                        <Mail className="size-3 shrink-0" />
+                        <span className="truncate">{b.inviteeEmail}</span>
+                      </p>
+                    </div>
+                  </div>
+                </TableCell>
+
+                <TableCell>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1 text-sm">
+                      <Calendar className="size-3.5 text-muted-foreground" />
+                      <span className="tabular-nums">{myZone ? formatDate(b.startTime, myZone) : ""}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Clock className="size-3" />
+                      <span className="tabular-nums">{myZone ? formatTime(b.startTime, myZone) : ""}</span>
+                      {upcoming && !b.canceledAt && (
+                        <Badge variant="outline" className="ml-1 border-status-showed-foreground/30 px-1.5 py-0 text-xs text-status-showed-foreground">
+                          Upcoming
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </TableCell>
+
+                {/* Rep and status can be changed right here; clicks don't open the panel. */}
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  <Select
+                    value={b.repId ?? UNASSIGNED}
+                    onValueChange={(v) => onPatch(b.id, { repId: v === UNASSIGNED ? null : v })}
                   >
-                    <span className="truncate">{b.inviteeName}</span>
-                    {b.canceledAt && <CanceledTag />}
-                  </button>
-                </td>
-                <td className={cn(cellClass, "tabular-nums")}>{myZone ? formatDateTime(b.startTime, myZone) : ""}</td>
-                <td className={cellClass}>{b.eventTypeName ?? "—"}</td>
-                <td className={cellClass}>
-                  <RepLabel rep={b.repId ? repsById.get(b.repId) : undefined} />
-                </td>
-                <td className={cellClass}>
-                  <StatusBadge status={b.status} />
-                </td>
-                <td className={cellClass}>
-                  {b.qualified === null ? (
-                    <span className="text-subtle">Not yet</span>
-                  ) : b.qualified ? (
-                    "Yes"
+                    <SelectTrigger className="h-8 w-[172px]" aria-label={`Rep for ${b.inviteeName}`}>
+                      <SelectValue placeholder="Assign..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={UNASSIGNED}>
+                        <span className="text-muted-foreground">Unassigned</span>
+                      </SelectItem>
+                      {reps.map((rep) => (
+                        <SelectItem key={rep.id} value={rep.id}>
+                          <span className="flex items-center gap-2">
+                            <InitialsAvatar name={rep.name} color={rep.color} className="size-5 [&_[data-slot=avatar-fallback]]:text-[10px]" />
+                            {rep.name}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+
+                <TableCell onClick={(e) => e.stopPropagation()}>
+                  <Select value={b.status} onValueChange={(v) => onPatch(b.id, { status: v as BookingRow["status"] })}>
+                    <SelectTrigger
+                      aria-label={`Status for ${b.inviteeName}`}
+                      className="group/status h-auto w-auto rounded-full border-0 bg-transparent p-0 shadow-none transition-all duration-150 hover:bg-muted/50 hover:ring-1 hover:ring-border dark:bg-transparent [&>svg]:ml-1 [&>svg]:-mr-1 [&>svg]:opacity-0 [&>svg]:transition-opacity group-hover/status:[&>svg]:opacity-100"
+                    >
+                      <Badge className={cn("pointer-events-none rounded-full border-transparent", STATUS_PILL[b.status])}>
+                        {STATUS_LABELS[b.status]}
+                      </Badge>
+                    </SelectTrigger>
+                    <SelectContent align="start" sideOffset={4} className="min-w-[140px]">
+                      {BOARD_COLUMNS.map((c) => (
+                        <SelectItem key={c.status} value={c.status}>
+                          <Badge className={cn("rounded-full border-transparent", STATUS_PILL[c.status])}>{c.label}</Badge>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+
+                <TableCell>
+                  {b.eventTypeName ? (
+                    <Badge variant="outline" className="rounded-full text-xs">
+                      {b.eventTypeName}
+                    </Badge>
                   ) : (
-                    "No"
+                    <span className="text-sm text-subtle">—</span>
                   )}
-                </td>
-                <td className={cn(cellClass, "tabular-nums")}>
+                </TableCell>
+
+                <TableCell className="text-sm">
+                  {b.qualified === null ? <span className="text-subtle">Not yet</span> : b.qualified ? "Yes" : "No"}
+                </TableCell>
+
+                <TableCell className="text-sm tabular-nums">
                   {b.callAttempts.length === 0 ? (
                     <span className="text-subtle">None</span>
                   ) : (
@@ -114,22 +180,23 @@ export function BookingsTable({
                       <span className="text-muted-foreground"> · {answered} answered</span>
                     </>
                   )}
-                </td>
-                <td className={cn(cellClass, "tabular-nums")}>
+                </TableCell>
+
+                <TableCell>
                   {b.inviteeTimeZone ? (
-                    <>
-                      {formatTime(b.startTime, b.inviteeTimeZone)}
-                      <span className="text-muted-foreground"> · {cityName(b.inviteeTimeZone)}</span>
-                    </>
+                    <div className="space-y-1">
+                      <p className="text-sm tabular-nums">{formatTime(b.startTime, b.inviteeTimeZone)}</p>
+                      <p className="text-xs text-muted-foreground">{cityName(b.inviteeTimeZone)}</p>
+                    </div>
                   ) : (
-                    <span className="text-subtle">Unknown</span>
+                    <span className="text-sm text-subtle">Unknown</span>
                   )}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             );
           })}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }

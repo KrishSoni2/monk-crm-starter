@@ -5,11 +5,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDateTime, toLocalInputValue } from "@/lib/format";
 import { useViewerTimeZone } from "@/lib/use-viewer-time-zone";
 import { cn } from "@/lib/utils";
-import { segmentItemClass } from "@/modules/sales/components/segment";
 import { RepLabel } from "@/modules/sales/components/rep-label";
 import type { CallAttemptRow, RepRow } from "@/modules/sales/types";
 
@@ -52,10 +51,10 @@ export function CallAttempts({
 
   return (
     <div className="flex flex-col gap-6">
-      <form onSubmit={submit} className="flex flex-col gap-3 rounded-card bg-inset p-4">
+      <form onSubmit={submit} className="flex flex-col gap-3 rounded-lg border bg-muted/30 p-4">
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex min-w-0 flex-1 basis-52 flex-col gap-2">
-            <Label htmlFor="call-when" className="text-muted-foreground">
+            <Label htmlFor="call-when" className="text-xs font-medium text-muted-foreground">
               When
             </Label>
             <Input
@@ -63,20 +62,18 @@ export function CallAttempts({
               type="datetime-local"
               value={when}
               onChange={(e) => setWhen(e.target.value)}
-              className="bg-background"
+              className="bg-card"
               required
             />
           </div>
           <div className="flex flex-col gap-2">
-            <span className="text-sm text-muted-foreground">Answered?</span>
-            <ToggleGroup type="single" value={answered} onValueChange={(v) => setAnswered(v as "yes" | "no" | "")}>
-              <ToggleGroupItem value="yes" className={cn(segmentItemClass, "bg-background")}>
-                Yes
-              </ToggleGroupItem>
-              <ToggleGroupItem value="no" className={cn(segmentItemClass, "bg-background")}>
-                No
-              </ToggleGroupItem>
-            </ToggleGroup>
+            <span className="text-xs font-medium text-muted-foreground">Answered?</span>
+            <Tabs value={answered} onValueChange={(v) => setAnswered(v as "yes" | "no")}>
+              <TabsList aria-label="Answered?">
+                <TabsTrigger value="yes" className="px-4">Yes</TabsTrigger>
+                <TabsTrigger value="no" className="px-4">No</TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
         </div>
         <Input
@@ -84,9 +81,9 @@ export function CallAttempts({
           onChange={(e) => setNote(e.target.value)}
           placeholder="Note (optional), e.g. voicemail, call back Friday"
           maxLength={500}
-          className="bg-background"
+          className="bg-card"
         />
-        <Button type="submit" variant="outline" disabled={!answered} className="self-start bg-background">
+        <Button type="submit" variant="outline" size="sm" disabled={!answered} className="self-start">
           Log call
         </Button>
       </form>
@@ -99,7 +96,7 @@ export function CallAttempts({
             <li key={a.id} className="group flex items-start gap-3 border-b py-3 last:border-b-0">
               <span
                 aria-hidden
-                className={cn("mt-2 size-2 shrink-0 rounded-full", a.answered ? "bg-positive" : "bg-border")}
+                className={cn("mt-1.5 size-2 shrink-0 rounded-full", a.answered ? "bg-positive" : "bg-subtle")}
               />
               <div className="min-w-0 flex-1 text-sm">
                 <p>

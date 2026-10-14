@@ -18,7 +18,8 @@ import type { BookingStatus } from "@/generated/prisma/enums";
 import { formatDateTime } from "@/lib/format";
 import { useViewerTimeZone } from "@/lib/use-viewer-time-zone";
 import { cn } from "@/lib/utils";
-import { RepLabel } from "@/modules/sales/components/rep-label";
+import { InitialsAvatar, RepLabel } from "@/modules/sales/components/rep-label";
+import { STATUS_PILL } from "@/modules/sales/components/status-badge";
 import { BOARD_COLUMNS, STATUS_LABELS, type BookingRow, type RepRow } from "@/modules/sales/types";
 
 type CardProps = { booking: BookingRow; rep: RepRow | undefined; myZone: string | null };
@@ -45,7 +46,7 @@ function CardContent({ booking, rep, myZone }: CardProps) {
   );
 }
 
-const cardClass = "w-full rounded-lg border bg-card p-3 text-left text-sm";
+const cardClass = "w-full rounded-lg border bg-card p-3 text-left text-sm shadow-sm";
 
 function DraggableCard({
   selected,
@@ -63,8 +64,8 @@ function DraggableCard({
       aria-label={`${props.booking.inviteeName}, ${STATUS_LABELS[props.booking.status]}. Press space to move.`}
       className={cn(
         cardClass,
-        "cursor-grab touch-none transition-[border-color,opacity] hover:border-foreground/20 active:cursor-grabbing",
-        selected && "border-foreground/30",
+        "cursor-grab touch-none transition-[border-color,box-shadow,opacity] hover:ring-1 hover:ring-border active:cursor-grabbing",
+        selected && "ring-2 ring-primary",
         // The card stays in place, faded, while its lifted copy follows the pointer.
         isDragging && "opacity-40",
       )}
@@ -81,13 +82,13 @@ function Column({ status, label, count, children }: { status: BookingStatus; lab
       ref={setNodeRef}
       data-board-column={status}
       className={cn(
-        "flex min-h-64 w-60 shrink-0 flex-col rounded-card bg-surface p-2 transition-colors",
-        isOver && "bg-accent",
+        "flex min-h-64 w-64 shrink-0 flex-col rounded-xl border bg-card/60 p-2 transition-colors",
+        isOver && "bg-muted ring-1 ring-border",
       )}
     >
-      <div className="flex items-center justify-between px-2 pt-1 pb-3">
-        <h3 className="text-sm font-medium">{label}</h3>
-        <span className="text-xs text-subtle tabular-nums">{count}</span>
+      <div className="flex items-center justify-between px-1.5 pt-1 pb-3">
+        <span className={cn("inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium", STATUS_PILL[status])}>{label}</span>
+        <span className="text-xs font-medium text-muted-foreground tabular-nums">{count}</span>
       </div>
       <div className="flex flex-col gap-2">{children}</div>
     </div>
@@ -181,7 +182,7 @@ export function BookingsBoard({
 
       <DragOverlay dropAnimation={{ duration: 180, easing: "cubic-bezier(0.2, 0, 0, 1)" }}>
         {active ? (
-          <div className={cn(cardClass, "cursor-grabbing border-foreground/20 shadow-sm")}>
+          <div className={cn(cardClass, "cursor-grabbing shadow-card ring-1 ring-border")}>
             <CardContent booking={active} rep={active.repId ? repsById.get(active.repId) : undefined} myZone={myZone} />
           </div>
         ) : null}

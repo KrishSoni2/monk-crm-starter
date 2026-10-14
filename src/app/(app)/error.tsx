@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 // to the server log, not the screen.
 export default function ErrorPage({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
-    <div className="max-w-xl rounded-card border p-card">
+    <div className="mx-auto max-w-xl rounded-xl border bg-card p-6 shadow-card">
       <h1 className="text-xl">Something went wrong loading this page</h1>
       <p className="mt-3 text-muted-foreground">
         The most common cause is the database being unreachable. Check that DATABASE_URL is right and the database

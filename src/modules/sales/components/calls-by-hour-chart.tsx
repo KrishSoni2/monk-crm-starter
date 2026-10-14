@@ -1,8 +1,8 @@
 "use client";
 
 import { Bar, BarChart, CartesianGrid, Rectangle, ResponsiveContainer, Tooltip, XAxis, YAxis, type BarShapeProps } from "recharts";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { segmentItemClass } from "@/modules/sales/components/segment";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { HourBucket, HourMode } from "@/modules/sales/stats";
 
 function hourLabel(hour: number) {
@@ -71,25 +71,25 @@ export function CallsByHourChart({
   const total = data.reduce((sum, b) => sum + b.answered + b.notAnswered, 0);
 
   return (
-    <section className="rounded-card border p-card">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h2 className="text-lg">Call attempts by hour</h2>
-          <p className="mt-1 text-sm text-muted-foreground">When people pick up. Use it to plan your calling blocks.</p>
+    <Card className="gap-4">
+      <CardHeader className="flex flex-wrap items-start justify-between gap-4">
+        <div className="space-y-1.5">
+          <CardTitle className="text-base font-medium">Call attempts by hour</CardTitle>
+          <CardDescription>When people pick up. Use it to plan your calling blocks.</CardDescription>
         </div>
-        <ToggleGroup type="single" value={mode} onValueChange={(v) => v && onModeChange(v as HourMode)} aria-label="Time zone">
-          <ToggleGroupItem value="theirs" className={segmentItemClass}>
-            Their time
-          </ToggleGroupItem>
-          <ToggleGroupItem value="mine" className={segmentItemClass}>
-            My time
-          </ToggleGroupItem>
-        </ToggleGroup>
-      </div>
-
-      <div className="mt-6">
-        <Legend />
-      </div>
+        <Tabs value={mode} onValueChange={(v) => onModeChange(v as HourMode)}>
+          <TabsList aria-label="Time zone">
+            <TabsTrigger value="theirs" className="px-3">
+              Their time
+            </TabsTrigger>
+            <TabsTrigger value="mine" className="px-3">
+              My time
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </CardHeader>
+      <CardContent>
+      <Legend />
 
       {buckets && total === 0 ? (
         <div className="flex h-64 items-center justify-center text-sm text-subtle">
@@ -120,7 +120,7 @@ export function CallsByHourChart({
                 dataKey="answered"
                 stackId="calls"
                 fill="var(--chart-1)"
-                stroke="var(--background)"
+                stroke="var(--card)"
                 strokeWidth={2}
                 shape={AnsweredShape}
                 animationDuration={300}
@@ -129,7 +129,7 @@ export function CallsByHourChart({
                 dataKey="notAnswered"
                 stackId="calls"
                 fill="var(--chart-2)"
-                stroke="var(--background)"
+                stroke="var(--card)"
                 strokeWidth={2}
                 radius={[4, 4, 0, 0]}
                 animationDuration={300}
@@ -159,6 +159,7 @@ export function CallsByHourChart({
           ))}
         </tbody>
       </table>
-    </section>
+      </CardContent>
+    </Card>
   );
 }

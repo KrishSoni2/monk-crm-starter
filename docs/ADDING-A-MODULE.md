@@ -35,7 +35,7 @@ src/modules/<module-id>/
   integrations/        # outside services, each file with a CONNECTION banner
   demo/seed.ts         # fictional demo data, flagged so it can be removed safely
 
-src/app/(app)/<module-id>/page.tsx      # thin page: load data, render components
+src/app/(app)/<module-id>/page.tsx      # thin page: PageShell + PageMasthead, then the components
 src/app/(app)/<module-id>/loading.tsx   # skeleton while it loads
 ```
 
